@@ -1,0 +1,21 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "io.github.hiiragi283.impl.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "FluidRenderHandlerRegistryImplMixin",
+    "ItemMixin",
+    "LootManagerMixin",
+    "RecipeManagerMixin",
+    "ResourcePackManagerMixin",
+    "ServerResourceManagerMixin",
+    "TagGroupLoaderMixin"
+  ],
+  "client": [
+    "ClientPlayNetworkHandlerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

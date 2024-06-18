@@ -1,0 +1,25 @@
+{
+  "type": "ht_engineering:furnace",
+  "ingredients": {
+    "items": [
+      {
+        "item": "minecraft:iron_ore",
+        "count": 1
+      },
+      {
+        "tag": "minecraft:logs",
+        "count": 2
+      }
+    ],
+    "fluids": []
+  },
+  "results": {
+    "items": [
+      {
+        "id": "minecraft:iron_ingot",
+        "Count": 2
+      }
+    ],
+    "fluids": []
+  }
+}

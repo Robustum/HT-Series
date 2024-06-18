@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "id": "ht_materials",
+  "version": "${version}",
+  "name": "HT Materials",
+  "description": "A library for HT Series",
+  "authors": [
+    "Hiiragi283"
+  ],
+  "contributors": [
+    "MrKono"
+  ],
+  "contact": {
+    "issues": "https://github.com/Hiiragi283/HT-Series/issues",
+    "sources": "https://github.com/Hiiragi283/HT-Series"
+  },
+  "license": [
+    "MPL-2.0"
+  ],
+  "icon": "assets/ht_api/textures/icon/material.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "io.github.hiiragi283.material.common.HTMaterials"
+      }
+    ],
+    "client": [
+      {
+        "adapter": "kotlin",
+        "value": "io.github.hiiragi283.material.client.HTMaterialsClient"
+      }
+    ],
+    "server": [
+      {
+        "adapter": "kotlin",
+        "value": "io.github.hiiragi283.material.common.HTMaterials"
+      }
+    ],
+    "ht_api.material": [
+      {
+        "adapter": "kotlin",
+        "value": "io.github.hiiragi283.material.impl.HTMaterialsAPIImpl"
+      }
+    ],
+    "ht_series.material": [
+      {
+        "adapter": "kotlin",
+        "value": "io.github.hiiragi283.material.impl.HMDefaultMaterials"
+      },
+      {
+        "adapter": "kotlin",
+        "value": "io.github.hiiragi283.material.impl.HMDefaultPlugin"
+      }
+    ],
+    "rei_plugins_v0": [
+      {
+        "adapter": "kotlin",
+        "value": "io.github.hiiragi283.material.compat.rei.HMREIPlugin"
+      }
+    ]
+  },
+  "mixins": [
+    
+  ],
+  "depends": {
+    "fabric": "*",
+    "fabric-language-kotlin": "*",
+    "fabricloader": ">=0.15.0",
+    "minecraft": "1.16.5",
+    "ht_api": "*"
+  },
+  "custom": {
+    "loom:injected_interfaces": {
+      
+    }
+  }
+}

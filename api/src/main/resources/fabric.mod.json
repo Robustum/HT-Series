@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "id": "ht_api",
+  "version": "${version}",
+  "name": "HT API",
+  "description": "A library for HT Series",
+  "authors": [
+    "Hiiragi283"
+  ],
+  "contributors": [],
+  "contact": {
+    "issues": "https://github.com/Hiiragi283/HT-Series/issues",
+    "sources": "https://github.com/Hiiragi283/HT-Series"
+  },
+  "license": [
+    "MPL-2.0"
+  ],
+  "icon": "assets/ht_api/textures/icon/api.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      {
+        "adapter": "kotlin",
+        "value": "io.github.hiiragi283.impl.HTAPI"
+      }
+    ],
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "io.github.hiiragi283.impl.HTAPI"
+      }
+    ]
+
+  },
+  "mixins": [
+    "ht_api.mixins.json"
+  ],
+  "depends": {
+    "fabric": "*",
+    "fabric-language-kotlin": "*",
+    "fabricloader": ">=0.15.0",
+    "minecraft": "1.16.5"
+  },
+  "custom": {
+    "loom:injected_interfaces": {
+      
+    }
+  }
+}

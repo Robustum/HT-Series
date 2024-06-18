@@ -1,0 +1,7 @@
+{
+  "parent": "ht_engineering:block/casing",
+  "textures": {
+    "top": "minecraft:block/nether_bricks",
+    "bottom": "minecraft:block/obsidian"
+  }
+}

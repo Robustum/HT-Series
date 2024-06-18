@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "id": "ht_engineering",
+  "version": "${version}",
+  "name": "HT Engineering",
+  "description": "A new tech mod",
+  "authors": [
+    "Hiiragi283"
+  ],
+  "contributors": [],
+  "contact": {
+    "issues": "https://github.com/Hiiragi283/HT-Series/issues",
+    "sources": "https://github.com/Hiiragi283/HT-Series"
+  },
+  "license": [
+    "MPL-2.0"
+  ],
+  "icon": "assets/ht_api/textures/icon/api.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      {
+        "adapter": "kotlin",
+        "value": "io.github.hiiragi283.engineering.client.HTEngineeringClient"
+      }
+    ],
+    "main": [
+      {
+        "adapter": "kotlin",
+        "value": "io.github.hiiragi283.engineering.common.HTEngineering"
+      }
+    ],
+    "ht_series.material": [
+      {
+        "adapter": "kotlin",
+        "value": "io.github.hiiragi283.engineering.compat.HEHTPlugin"
+      }
+    ]
+  },
+  "mixins": [],
+  "depends": {
+    "fabric": "*",
+    "fabric-language-kotlin": "*",
+    "fabricloader": ">=0.15.0",
+    "minecraft": "1.16.5",
+    "ht_api": "*",
+    "ht_materials": "*"
+  },
+  "custom": {
+    "loom:injected_interfaces": {
+      
+    }
+  }
+}
