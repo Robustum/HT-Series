@@ -23,7 +23,7 @@ object HMMIPlugin : HTPlugin.Material {
             "rotor",
             "tiny_dust",
             "wire",
-        ).map(HTShapeKey.Companion::of).forEach(builder::add)
+        ).map(HTShapeKey.Companion::of).forEach(builder::createItemShape)
     }
 
     /*override fun commonSetup() {

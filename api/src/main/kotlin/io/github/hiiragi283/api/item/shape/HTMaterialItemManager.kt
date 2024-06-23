@@ -7,7 +7,6 @@ import io.github.hiiragi283.api.extension.getRegistryObject
 import io.github.hiiragi283.api.extension.nonAir
 import io.github.hiiragi283.api.extension.safeValues
 import io.github.hiiragi283.api.material.HTMaterialKey
-import io.github.hiiragi283.api.material.HTMaterialKeyable
 import io.github.hiiragi283.api.module.HTModuleType
 import net.minecraft.item.Item
 import net.minecraft.item.ItemConvertible
@@ -17,11 +16,14 @@ import net.minecraft.tag.Tag
 import net.minecraft.util.registry.Registry
 
 class HTMaterialItemManager(
-    private val itemToShaped: Map<Item, HTShapedMaterial.Lazy>,
+    private val itemToShaped: Map<Item, HTShapedMaterial>,
     private val shapedToItems: Table<HTMaterialKey, HTShapeKey, MutableSet<Item>>,
     private val unificationBlacklist: Set<Item>,
 ) {
-    constructor() : this(mapOf(), HashBasedTable.create(), setOf())
+    companion object {
+        @JvmField
+        val EMPTY = HTMaterialItemManager(mapOf(), HashBasedTable.create(), setOf())
+    }
 
     //    Item -> HTShapedMaterial    //
 
@@ -31,7 +33,7 @@ class HTMaterialItemManager(
 
     operator fun contains(itemConvertible: ItemConvertible): Boolean = itemConvertible.asItem() in itemToShaped
 
-    fun forEach(action: (Item, HTShapedMaterial.Lazy) -> Unit) {
+    fun forEach(action: (Item, HTShapedMaterial) -> Unit) {
         itemToShaped.forEach(action)
     }
 
@@ -81,18 +83,18 @@ class HTMaterialItemManager(
 
     //    Builder    //
 
-    class Builder(private val map: MutableMap<Entry, HTShapedMaterial.Lazy>) {
+    class Builder(private val map: MutableMap<Entry, HTShapedMaterial>) {
         @JvmOverloads
         fun add(
-            keyable: HTMaterialKeyable,
+            materialKey: HTMaterialKey,
             shapeKey: HTShapeKey,
             itemConvertible: ItemConvertible?,
             unification: Boolean = true,
         ) {
-            add(HTShapedMaterial.lazy(keyable.materialKey, shapeKey), itemConvertible?.asItem(), unification)
+            add(HTShapedMaterial(materialKey, shapeKey), itemConvertible?.asItem(), unification)
         }
 
-        private fun add(part: HTShapedMaterial.Lazy, item: Item?, unification: Boolean = true) {
+        private fun add(part: HTShapedMaterial, item: Item?, unification: Boolean = true) {
             part.checkValidation()
             item?.nonAir?.run {
                 map[Entry.ItemEntry(item, unification)] = part
@@ -106,10 +108,10 @@ class HTMaterialItemManager(
             tag: Tag<Item>,
             unification: Boolean = true,
         ) {
-            add(HTShapedMaterial.lazy(materialKey, shapeKey), tag, unification)
+            add(HTShapedMaterial(materialKey, shapeKey), tag, unification)
         }
 
-        private fun add(part: HTShapedMaterial.Lazy, tag: Tag<Item>, unification: Boolean = true) {
+        private fun add(part: HTShapedMaterial, tag: Tag<Item>, unification: Boolean = true) {
             part.checkValidation()
             map[Entry.TagEntry(tag, unification)] = part
         }

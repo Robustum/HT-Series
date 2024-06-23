@@ -6,6 +6,7 @@ import io.github.hiiragi283.api.item.shape.HTShapeKey
 import io.github.hiiragi283.api.item.shape.HTShapeKeys
 import io.github.hiiragi283.api.material.HTMaterialKey
 import io.github.hiiragi283.api.material.HTMaterialKeys
+import io.github.hiiragi283.api.module.HTApiHolder
 import io.github.hiiragi283.api.module.HTMaterialsAPI
 import io.github.hiiragi283.api.module.HTModuleType
 import io.github.hiiragi283.api.module.HTPlugin
@@ -28,7 +29,12 @@ object HEHTPlugin : HTPlugin.Material {
         registerBlastingFurnaceRecipes()
     }
 
-    private fun getMaterialItem(materialKey: HTMaterialKey, shapeKey: HTShapeKey): Item = checkNotNull(materialKey.get().getItem(shapeKey))
+    private fun getMaterialItem(materialKey: HTMaterialKey, shapeKey: HTShapeKey): Item = HTApiHolder.Material
+        .apiInstance
+        .materialContentManager
+        .itemGroup
+        .getResult(materialKey, shapeKey)
+        .getOrThrow()
 
     private fun registerCraftingRecipes() {
         HTRuntimeDataRegistry.addRecipes(

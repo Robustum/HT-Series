@@ -1,5 +1,6 @@
 package io.github.hiiragi283.api.item.shape
 
+import io.github.hiiragi283.api.extension.checkNotNull
 import io.github.hiiragi283.api.material.HTMaterialTranslatable
 import io.github.hiiragi283.api.module.HTApiHolder
 import io.github.hiiragi283.api.module.HTLogger
@@ -34,7 +35,7 @@ class HTShapeKey private constructor(val name: String) : Supplier<HTShape>, HTMa
         if (cache == null) {
             cache = HTApiHolder.Material.apiInstance.shapeRegistry[this]
         }
-        return checkNotNull(cache) { "Shape; $name is not registered!" }
+        return cache.checkNotNull { "Shape; $name is not registered!" }
     }
 
     // fun <T : Any> getTyped(type: HTShapeType<T>): HTShape.Typed<T> = get().typed(type)

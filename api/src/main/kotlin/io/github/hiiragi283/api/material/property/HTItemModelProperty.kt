@@ -3,6 +3,7 @@ package io.github.hiiragi283.api.material.property
 import io.github.hiiragi283.api.extension.lowerName
 import io.github.hiiragi283.api.item.shape.HTShapeKey
 import io.github.hiiragi283.api.item.shape.HTShapeKeys
+import io.github.hiiragi283.api.material.type.HTMaterialType
 import io.github.hiiragi283.api.module.HTModuleType
 import io.github.hiiragi283.api.resource.HTModelJsonBuilder
 import net.minecraft.block.Block
@@ -26,7 +27,7 @@ abstract class HTItemModelProperty(val shapeKey: HTShapeKey) : Consumer<HTModelJ
         fun ofSimple(shapeKey: HTShapeKey): HTItemModelProperty = Simple(shapeKey)
 
         @JvmStatic
-        fun ofGem(type: HTMaterialGemType, shapeKey: HTShapeKey): HTItemModelProperty = Gem(type, shapeKey)
+        fun ofGem(type: HTMaterialType.Gem, shapeKey: HTShapeKey): HTItemModelProperty = Gem(type, shapeKey)
 
         @JvmStatic
         fun ofMetal(isShiny: Boolean, shapeKey: HTShapeKey): HTItemModelProperty = Metal(isShiny, shapeKey)
@@ -37,7 +38,7 @@ abstract class HTItemModelProperty(val shapeKey: HTShapeKey) : Consumer<HTModelJ
 
     private class Simple(shapeKey: HTShapeKey) : HTItemModelProperty(shapeKey)
 
-    private class Gem(val type: HTMaterialGemType, shapeKey: HTShapeKey) : HTItemModelProperty(shapeKey) {
+    private class Gem(val type: HTMaterialType.Gem, shapeKey: HTShapeKey) : HTItemModelProperty(shapeKey) {
         override fun getTextureId(): String = if (shapeKey == HTShapeKeys.GEM) "item/gem_${type.lowerName}" else super.getTextureId()
 
         override fun getOverlayTexture(): String? = "${getTextureId()}_overlay".takeIf { type.hasOverlay }

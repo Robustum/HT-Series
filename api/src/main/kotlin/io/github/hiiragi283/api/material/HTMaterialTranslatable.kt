@@ -5,8 +5,7 @@ import net.minecraft.text.TranslatableText
 interface HTMaterialTranslatable {
     val translationKey: String
 
-    fun getTranslatedName(keyable: HTMaterialKeyable): String = getTranslatedText(keyable).string
+    fun getTranslatedName(materialKey: HTMaterialKey): String = getTranslatedText(materialKey).string
 
-    fun getTranslatedText(keyable: HTMaterialKeyable): TranslatableText =
-        TranslatableText(translationKey, keyable.materialKey.translatedName)
+    fun getTranslatedText(materialKey: HTMaterialKey): TranslatableText = TranslatableText(translationKey, materialKey.translatedName)
 }

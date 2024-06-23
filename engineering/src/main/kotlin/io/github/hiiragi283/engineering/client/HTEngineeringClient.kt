@@ -1,6 +1,7 @@
 package io.github.hiiragi283.engineering.client
 
 import io.github.cottonmc.cotton.gui.SyncedGuiDescription
+import io.github.hiiragi283.api.extension.singleBlockStateFunction
 import io.github.hiiragi283.api.gui.HTCottonInventoryScreen
 import io.github.hiiragi283.api.module.HTLogger
 import io.github.hiiragi283.api.multiblock.HTMultiblockRenderer
@@ -14,10 +15,6 @@ import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.rendereregistry.v1.BlockEntityRendererRegistry
 import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry
 import net.minecraft.block.Blocks
-import net.minecraft.data.client.model.BlockStateVariant
-import net.minecraft.data.client.model.ModelIds
-import net.minecraft.data.client.model.VariantSettings
-import net.minecraft.data.client.model.VariantsBlockStateSupplier
 import net.minecraft.screen.ScreenHandlerType
 
 object HTEngineeringClient : ClientModInitializer {
@@ -38,13 +35,10 @@ object HTEngineeringClient : ClientModInitializer {
         HTRuntimeClientPack.addSimpleBlockState(HEBlocks.STEEL_WRAPPED_STONE)
         HTRuntimeClientPack.addSimpleBlockState(HEBlocks.DREADY_WRAPPED_STONE)
         HTRuntimeClientPack.addSimpleBlockState(HEBlocks.STEADY_WRAPPED_STONE)
-        HTRuntimeClientPack.addBlockState(HEBlocks.CAULDRON) { block ->
-            VariantsBlockStateSupplier.create(
-                block,
-                BlockStateVariant.create()
-                    .put(VariantSettings.MODEL, ModelIds.getBlockModelId(Blocks.CAULDRON)),
-            )
-        }
+        HTRuntimeClientPack.addBlockState(
+            HEBlocks.CAULDRON,
+            singleBlockStateFunction(Blocks.CAULDRON),
+        )
     }
 
     private fun registerModels() {

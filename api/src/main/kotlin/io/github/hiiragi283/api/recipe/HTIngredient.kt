@@ -4,6 +4,7 @@ import com.google.gson.JsonObject
 import com.mojang.serialization.Codec
 import com.mojang.serialization.JsonOps
 import com.mojang.serialization.codecs.RecordCodecBuilder
+import io.github.hiiragi283.api.extension.checkNotNull
 import io.github.hiiragi283.api.extension.decodeResult
 import io.github.hiiragi283.api.extension.safeValues
 import io.github.hiiragi283.api.module.HTModuleType
@@ -32,11 +33,8 @@ interface HTIngredient : Predicate<ItemStack>, Consumer<ItemStack> {
                 .orElseThrow { IllegalStateException("") }
             return type.codec.decodeResult(JsonOps.INSTANCE, jsonObject)
                 .getOrNull()
-                .let {
-                    checkNotNull(it as? HTIngredient) {
-                        "Cannot cast $it into HTIngredient!"
-                    }
-                }
+                .let { it as? HTIngredient }
+                .checkNotNull { "Could not read HTIngredient!" }
         }
     }
 

@@ -1,12 +1,12 @@
 package io.github.hiiragi283.api.resource
 
+import io.github.hiiragi283.api.extension.buildLootPool
+import io.github.hiiragi283.api.extension.buildLootTable
+import io.github.hiiragi283.api.extension.rolls
+import io.github.hiiragi283.api.extension.surviveExplosion
 import net.minecraft.block.Block
 import net.minecraft.data.server.recipe.RecipeJsonProvider
-import net.minecraft.loot.ConstantLootTableRange
-import net.minecraft.loot.LootPool
 import net.minecraft.loot.LootTable
-import net.minecraft.loot.condition.SurvivesExplosionLootCondition
-import net.minecraft.loot.context.LootContextTypes
 import net.minecraft.loot.entry.ItemEntry
 import net.minecraft.recipe.Recipe
 import net.minecraft.tag.Tag
@@ -33,14 +33,13 @@ object HTRuntimeDataRegistry {
     fun <T : Block> addBlockLootTable(
         block: T,
         builderAction: (T) -> LootTable.Builder = {
-            LootTable.Builder()
-                .type(LootContextTypes.BLOCK)
-                .pool(
-                    LootPool.builder()
-                        .rolls(ConstantLootTableRange.create(1))
-                        .with(ItemEntry.builder(it))
-                        .conditionally(SurvivesExplosionLootCondition.builder()),
-                )
+            buildLootTable {
+                buildLootPool {
+                    rolls(1)
+                    with(ItemEntry.builder(it))
+                    surviveExplosion()
+                }
+            }
         },
     ) {
         addLootTable(block.lootTableId, builderAction(block))

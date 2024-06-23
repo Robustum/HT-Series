@@ -2,7 +2,7 @@ package io.github.hiiragi283.api.event
 
 import io.github.hiiragi283.api.event.HTTagEvents.Build
 import io.github.hiiragi283.api.event.HTTagEvents.Updated
-import io.github.hiiragi283.api.material.HTMaterialKeyable
+import io.github.hiiragi283.api.material.HTMaterialKey
 import io.github.hiiragi283.api.material.HTMaterialTagProvider
 import io.github.hiiragi283.api.module.HTModuleType
 import net.fabricmc.fabric.api.event.Event
@@ -38,15 +38,15 @@ object HTTagEvents {
         fun register(handler: Handler<T>)
 
         class Handler<T>(private val map: MutableMap<Identifier, Tag.Builder>, private val mapper: (T) -> Identifier) {
-            fun getOrCreate(keyable: HTMaterialKeyable, tagProvider: HTMaterialTagProvider): Tag.Builder =
-                getOrCreate(tagProvider.getTagId(keyable))
+            fun getOrCreate(materialKey: HTMaterialKey, tagProvider: HTMaterialTagProvider): Tag.Builder =
+                getOrCreate(tagProvider.getTagId(materialKey))
 
             fun getOrCreate(id: Identifier): Tag.Builder = map.computeIfAbsent(id) { Tag.Builder.create() }
 
             fun getOrCreate(tag: Tag<T>): Tag.Builder? = (tag as? Tag.Identified<T>)?.id?.let(::getOrCreate)
 
-            fun add(keyable: HTMaterialKeyable, tagProvider: HTMaterialTagProvider, vararg obj: T): Handler<T> =
-                add(tagProvider.getTagId(keyable), *obj)
+            fun add(materialKey: HTMaterialKey, tagProvider: HTMaterialTagProvider, vararg obj: T): Handler<T> =
+                add(tagProvider.getTagId(materialKey), *obj)
 
             fun add(id: Identifier, vararg obj: T): Handler<T> = apply {
                 val builder: Tag.Builder = getOrCreate(id)

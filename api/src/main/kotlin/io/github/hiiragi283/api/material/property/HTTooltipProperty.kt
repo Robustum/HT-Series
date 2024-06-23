@@ -1,7 +1,7 @@
 package io.github.hiiragi283.api.material.property
 
-import io.github.hiiragi283.api.material.HTMaterial
+import io.github.hiiragi283.api.material.HTMaterialTooltipContext
 
 fun interface HTTooltipProperty {
-    fun appendTooltip(context: HTMaterial.TooltipContext)
+    fun appendTooltip(context: HTMaterialTooltipContext)
 }

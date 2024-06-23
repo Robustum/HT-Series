@@ -2,8 +2,15 @@ package io.github.hiiragi283.api.material.content
 
 import com.google.common.collect.HashBasedTable
 import com.google.common.collect.Table
+import io.github.hiiragi283.api.extension.buildLootPool
+import io.github.hiiragi283.api.extension.buildLootTable
+import io.github.hiiragi283.api.extension.checkNotNull
+import io.github.hiiragi283.api.extension.rolls
+import io.github.hiiragi283.api.extension.withFortune
+import io.github.hiiragi283.api.extension.withSilkTouch
 import io.github.hiiragi283.api.item.shape.HTShapeKey
 import io.github.hiiragi283.api.item.shape.HTShapeKeys
+import io.github.hiiragi283.api.item.shape.HTShapedMaterial
 import io.github.hiiragi283.api.material.HTMaterialKey
 import io.github.hiiragi283.api.material.property.HTConfiguredFeatureProperty
 import io.github.hiiragi283.api.module.HTApiHolder
@@ -13,23 +20,17 @@ import net.fabricmc.fabric.api.`object`.builder.v1.block.FabricBlockSettings
 import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
-import net.minecraft.enchantment.Enchantments
+import net.minecraft.data.client.model.ModelIds
 import net.minecraft.item.Item
-import net.minecraft.loot.ConstantLootTableRange
-import net.minecraft.loot.LootPool
 import net.minecraft.loot.LootTable
-import net.minecraft.loot.condition.MatchToolLootCondition
 import net.minecraft.loot.entry.ItemEntry
-import net.minecraft.loot.function.ApplyBonusLootFunction
-import net.minecraft.predicate.NumberRange
-import net.minecraft.predicate.item.EnchantmentPredicate
-import net.minecraft.predicate.item.ItemPredicate
 import net.minecraft.structure.rule.BlockMatchRuleTest
 import net.minecraft.structure.rule.RuleTest
 import net.minecraft.structure.rule.TagMatchRuleTest
 import net.minecraft.tag.BlockTags
 import net.minecraft.tag.Tag
 import net.minecraft.text.MutableText
+import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
 import net.minecraft.util.registry.RegistryKey
 import net.minecraft.world.gen.GenerationStep
@@ -42,34 +43,22 @@ import net.minecraft.block.Block as MCBlock
 
 object HTMaterialOre {
     @JvmStatic
-    fun createLootTable(block: MCBlock, materialKey: HTMaterialKey): LootTable.Builder = LootTable.Builder()
-        .pool(
-            LootPool.builder()
-                .rolls(ConstantLootTableRange.create(1))
-                .with(
-                    ItemEntry.builder(block)
-                        .conditionally(
-                            MatchToolLootCondition.builder(
-                                ItemPredicate.Builder.create()
-                                    .enchantment(
-                                        EnchantmentPredicate(
-                                            Enchantments.SILK_TOUCH,
-                                            NumberRange.IntRange.atLeast(1),
-                                        ),
-                                    ),
-                            ),
-                        )
-                        .alternatively(
-                            ItemEntry.builder(
-                                HTApiHolder.Material
-                                    .apiInstance
-                                    .materialItemManager
-                                    .getOrEmpty(materialKey, HTShapeKeys.RAW_CHUNK),
-                            )
-                                .apply(ApplyBonusLootFunction.oreDrops(Enchantments.FORTUNE)),
-                        ),
-                ),
-        )
+    fun createLootTable(block: MCBlock, materialKey: HTMaterialKey): LootTable.Builder = buildLootTable {
+        buildLootPool {
+            rolls(1)
+            with(
+                ItemEntry.builder(block)
+                    .withSilkTouch(
+                        ItemEntry.builder(
+                            HTApiHolder.Material
+                                .apiInstance
+                                .materialItemManager
+                                .getOrEmpty(materialKey, HTShapeKeys.RAW_CHUNK),
+                        ).withFortune(),
+                    ),
+            )
+        }
+    }
 
     class Block(rock: Rock, miningLevel: Int) :
         MCBlock(FabricBlockSettings.copyOf(rock.parent).breakByTool(rock.toolTags, miningLevel)) {
@@ -83,34 +72,33 @@ object HTMaterialOre {
 
     enum class Rock(
         val parent: MCBlock,
-        val ruleTest: RuleTest,
         val toolTags: Tag<Item>,
         val shapeKey: HTShapeKey,
-        val texId: String,
+        val ruleTest: RuleTest,
     ) {
-        STONE(Blocks.STONE, FabricToolTags.PICKAXES, HTShapeKeys.ORE, "block/stone", BlockTags.BASE_STONE_OVERWORLD),
-        NETHER(Blocks.NETHERRACK, FabricToolTags.PICKAXES, HTShapeKeys.ORE_NETHER, "block/netherrack"),
-        BLACKSTONE(Blocks.BLACKSTONE, FabricToolTags.PICKAXES, HTShapeKeys.ORE_BLACKSTONE, "block/blackstone"),
-        END(Blocks.END_STONE, FabricToolTags.PICKAXES, HTShapeKeys.ORE_END, "block/end_stone"),
-        GRAVEL(Blocks.GRAVEL, FabricToolTags.SHOVELS, HTShapeKeys.ORE_GRAVEL, "block/gravel"),
-        SAND(Blocks.SAND, FabricToolTags.SHOVELS, HTShapeKeys.ORE_SAND, "block/sand"),
+        STONE(Blocks.STONE, FabricToolTags.PICKAXES, HTShapeKeys.ORE, BlockTags.BASE_STONE_OVERWORLD),
+        NETHER(Blocks.NETHERRACK, FabricToolTags.PICKAXES, HTShapeKeys.ORE_NETHER),
+        BLACKSTONE(Blocks.BLACKSTONE, FabricToolTags.PICKAXES, HTShapeKeys.ORE_BLACKSTONE),
+        END(Blocks.END_STONE, FabricToolTags.PICKAXES, HTShapeKeys.ORE_END),
+        GRAVEL(Blocks.GRAVEL, FabricToolTags.SHOVELS, HTShapeKeys.ORE_GRAVEL),
+        SAND(Blocks.SAND, FabricToolTags.SHOVELS, HTShapeKeys.ORE_SAND),
         ;
 
         constructor(
             parent: MCBlock,
             toolTags: Tag<Item>,
             shape: HTShapeKey,
-            texId: String,
             replacement: MCBlock = parent,
-        ) : this(parent, BlockMatchRuleTest(replacement), toolTags, shape, texId)
+        ) : this(parent, toolTags, shape, BlockMatchRuleTest(replacement))
 
         constructor(
             parent: MCBlock,
             toolTags: Tag<Item>,
             shape: HTShapeKey,
-            texId: String,
             replacement: Tag<MCBlock>,
-        ) : this(parent, TagMatchRuleTest(replacement), toolTags, shape, texId)
+        ) : this(parent, toolTags, shape, TagMatchRuleTest(replacement))
+
+        val texId: Identifier = ModelIds.getBlockModelId(parent)
     }
 
     object Manager {
@@ -142,9 +130,13 @@ object HTMaterialOre {
         val shapeKey: HTShapeKey = rock.shapeKey
 
         override val configuredFeature: ConfiguredFeature<*, *> by lazy {
-            val state: BlockState = materialKey.get().getBlock(shapeKey)
+            val state: BlockState = HTApiHolder.Material
+                .apiInstance
+                .materialContentManager
+                .blockGroup
+                .get(materialKey, shapeKey)
                 ?.defaultState
-                .let { checkNotNull(it) }
+                .checkNotNull { "Could not find Ore Block ${HTShapedMaterial(materialKey, shapeKey)}!" }
             Feature.ORE.configure(
                 OreFeatureConfig(rock.ruleTest, state, veinSize.size),
             ).decorate(

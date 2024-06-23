@@ -2,10 +2,8 @@ package io.github.hiiragi283.api.module
 
 import io.github.hiiragi283.api.fluid.phase.HTMaterialFluidManager
 import io.github.hiiragi283.api.item.shape.HTMaterialItemManager
-import io.github.hiiragi283.api.item.shape.HTShape
 import io.github.hiiragi283.api.item.shape.HTShapeKey
 import io.github.hiiragi283.api.item.shape.HTShapeRegistry
-import io.github.hiiragi283.api.material.HTMaterial
 import io.github.hiiragi283.api.material.HTMaterialKey
 import io.github.hiiragi283.api.material.HTMaterialRegistry
 import net.minecraft.util.Identifier
@@ -36,9 +34,9 @@ interface HTPlugin {
 
         fun registerAllItems(builder: HTMaterialItemManager.Builder) {
             HTApiHolder.Material.apiInstance
-                .forEachDirectPart { (material: HTMaterial, shape: HTShape) ->
-                    Registry.ITEM.get(shape.getRegistryKey(Registry.ITEM_KEY, material, modId))?.run {
-                        builder.add(material, shape.key, this)
+                .forEachShapedMaterial { (materialKey: HTMaterialKey, shapeKey: HTShapeKey) ->
+                    Registry.ITEM.get(shapeKey.get().getRegistryKey(Registry.ITEM_KEY, materialKey, modId))?.run {
+                        builder.add(materialKey, shapeKey, this)
                     }
                 }
         }

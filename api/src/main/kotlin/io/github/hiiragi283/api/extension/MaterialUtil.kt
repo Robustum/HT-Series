@@ -55,8 +55,12 @@ fun formatFormula(map: Map<String, Int>): String {
     return builder.toString()
 }
 
+fun validateFormula(formula: String?): String? = formula?.takeIf { it.isNotEmpty() && it.isNotBlank() }
+
 //    Molar    //
 
 fun calculateMolar(molars: Iterable<Double>) = calculateMolar(molars.associateWith { 1 })
 
 fun calculateMolar(map: Map<Double, Int>): Double = map.map { (molar: Double, weight: Int) -> molar * weight }.sum()
+
+fun validateMolar(molar: Double?): Double? = molar?.takeIf { it > 0.0 }?.let { "%.1f".format(it).toDouble() }

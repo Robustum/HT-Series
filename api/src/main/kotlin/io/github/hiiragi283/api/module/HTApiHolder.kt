@@ -1,5 +1,6 @@
 package io.github.hiiragi283.api.module
 
+import io.github.hiiragi283.api.extension.checkNotNull
 import io.github.hiiragi283.api.extension.findEntrypointContainer
 
 sealed class HTApiHolder<T : Any>(val type: HTModuleType, private val clazz: Class<T>) {
@@ -13,9 +14,7 @@ sealed class HTApiHolder<T : Any>(val type: HTModuleType, private val clazz: Cla
                 }
                 instanceCache = findEntrypointContainer(type.modId, type.apiKey, clazz)
                     ?.entrypoint
-                    .let {
-                        checkNotNull(it) { "Could not find api instance of ${clazz.canonicalName}!" }
-                    }
+                    .checkNotNull { "Could not find api instance of ${clazz.canonicalName}!" }
             }
             return instanceCache
         }

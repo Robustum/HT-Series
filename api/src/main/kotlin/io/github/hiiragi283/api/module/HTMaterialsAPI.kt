@@ -1,10 +1,13 @@
 package io.github.hiiragi283.api.module
 
+import io.github.hiiragi283.api.fluid.phase.HTFluidPhase
 import io.github.hiiragi283.api.fluid.phase.HTMaterialFluidManager
+import io.github.hiiragi283.api.fluid.phase.HTPhasedMaterial
 import io.github.hiiragi283.api.item.shape.HTMaterialItemManager
 import io.github.hiiragi283.api.item.shape.HTShapeRegistry
 import io.github.hiiragi283.api.item.shape.HTShapedMaterial
 import io.github.hiiragi283.api.material.HTMaterialRegistry
+import io.github.hiiragi283.api.material.content.HTMaterialContentManager
 import net.minecraft.block.Block
 import net.minecraft.item.Item
 import net.minecraft.item.ItemGroup
@@ -15,23 +18,23 @@ interface HTMaterialsAPI {
     val itemGroup: ItemGroup
     val shapeRegistry: HTShapeRegistry
     val materialRegistry: HTMaterialRegistry
-    // val contentRegistry: HTMaterialContentRegistry
 
+    val materialContentManager: HTMaterialContentManager
     val materialFluidManager: HTMaterialFluidManager
     val materialItemManager: HTMaterialItemManager
 
-    fun forEachLazyPart(action: (HTShapedMaterial.Lazy) -> Unit) {
+    fun forEachPhasedMaterial(action: (HTPhasedMaterial) -> Unit) {
         materialRegistry.keys.forEach { materialKey ->
-            shapeRegistry.keys.map { shapeKey ->
-                HTShapedMaterial.lazy(materialKey, shapeKey)
+            HTFluidPhase.entries.map { phase ->
+                HTPhasedMaterial(materialKey, phase)
             }.forEach(action)
         }
     }
 
-    fun forEachDirectPart(action: (HTShapedMaterial.Direct) -> Unit) {
-        materialRegistry.values.forEach { material ->
-            shapeRegistry.values.map { shape ->
-                HTShapedMaterial.direct(material, shape)
+    fun forEachShapedMaterial(action: (HTShapedMaterial) -> Unit) {
+        materialRegistry.keys.forEach { materialKey ->
+            shapeRegistry.keys.map { shapeKey ->
+                HTShapedMaterial(materialKey, shapeKey)
             }.forEach(action)
         }
     }

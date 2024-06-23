@@ -1,8 +1,10 @@
 package io.github.hiiragi283.api.compat.rei
 
 import io.github.hiiragi283.api.extension.HTColor
-import io.github.hiiragi283.api.material.HTMaterial
+import io.github.hiiragi283.api.material.HTMaterialKey
+import io.github.hiiragi283.api.material.HTMaterialTooltipContext
 import io.github.hiiragi283.api.material.property.HTMaterialProperties
+import io.github.hiiragi283.api.property.HTPropertyHolder
 import it.unimi.dsi.fastutil.shorts.Short2ObjectMap
 import me.shedaniel.math.Point
 import me.shedaniel.math.Rectangle
@@ -33,10 +35,12 @@ private val IGNORE_AMOUNT = Fraction.of(
 
 @Suppress("UnstableApiUsage")
 data class HTMaterialEntryStack(
-    private val material: HTMaterial,
+    private val materialKey: HTMaterialKey,
     private var amount: Fraction = IGNORE_AMOUNT,
 ) : AbstractEntryStack() {
-    constructor(material: HTMaterial, amount: Long) : this(material, Fraction.ofWhole(amount))
+    constructor(materialKey: HTMaterialKey, amount: Long) : this(materialKey, Fraction.ofWhole(amount))
+
+    private val material: HTPropertyHolder by lazy(materialKey::get)
 
     private var isEmptyMaterial: Boolean = false
 
@@ -58,14 +62,14 @@ data class HTMaterialEntryStack(
     override fun isEmpty(): Boolean = (amount != IGNORE_AMOUNT && !amount.isGreaterThan(Fraction.empty())) || isEmptyMaterial
 
     override fun copy(): EntryStack {
-        val copy: HTMaterialEntryStack = copy(material = material, amount = amount)
+        val copy: HTMaterialEntryStack = copy(materialKey = materialKey, amount = amount)
         for (entry: Short2ObjectMap.Entry<Any> in settings.short2ObjectEntrySet()) {
             copy.setting(EntryStack.Settings.getById(entry.shortKey), entry.value)
         }
         return copy
     }
 
-    override fun getObject(): Any = material
+    override fun getObject(): Any = materialKey
 
     override fun equalsIgnoreTagsAndAmount(stack: EntryStack): Boolean = equalsIgnoreAmount(stack)
 
@@ -74,13 +78,13 @@ data class HTMaterialEntryStack(
     override fun equalsIgnoreAmount(stack: EntryStack): Boolean = if (stack.type != EntryStack.Type.RENDER) {
         false
     } else {
-        (stack as? HTMaterialEntryStack)?.material == material
+        (stack as? HTMaterialEntryStack)?.materialKey == materialKey
     }
 
     override fun equalsAll(stack: EntryStack): Boolean = if (stack.type != EntryStack.Type.RENDER) {
         false
     } else {
-        (stack as? HTMaterialEntryStack)?.material == material &&
+        (stack as? HTMaterialEntryStack)?.materialKey == materialKey &&
             (
                 amount == IGNORE_AMOUNT ||
                     stack.accurateAmount == IGNORE_AMOUNT ||
@@ -100,10 +104,10 @@ data class HTMaterialEntryStack(
                     addAll(amountTooltip.split("\n").map(::LiteralText))
                 }
                 if (MinecraftClient.getInstance().options.advancedItemTooltips) {
-                    add(material.materialKey.translatedText.formatted(Formatting.DARK_GRAY))
+                    add(materialKey.translatedText.formatted(Formatting.DARK_GRAY))
                 }
                 addAll(get(EntryStack.Settings.TOOLTIP_APPEND_EXTRA).apply(this@HTMaterialEntryStack))
-                HTMaterial.appendTooltip(material, lines = this)
+                HTMaterialTooltipContext(materialKey, material).appendTooltips(this)
             },
         )
     }
@@ -144,5 +148,5 @@ data class HTMaterialEntryStack(
         tessellator.draw()
     }
 
-    override fun asFormattedText(): Text = material.materialKey.translatedText
+    override fun asFormattedText(): Text = materialKey.translatedText
 }

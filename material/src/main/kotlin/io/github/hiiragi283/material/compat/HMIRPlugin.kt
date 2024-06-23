@@ -11,7 +11,6 @@ import io.github.hiiragi283.api.item.shape.HTShapeRegistry
 import io.github.hiiragi283.api.material.HTMaterialKey
 import io.github.hiiragi283.api.material.HTMaterialKeys
 import io.github.hiiragi283.api.material.HTMaterialRegistry
-import io.github.hiiragi283.api.material.composition.HTMaterialComposition
 import io.github.hiiragi283.api.module.HTPlugin
 import me.steven.indrev.IndustrialRevolution
 import me.steven.indrev.registry.IRFluidRegistry
@@ -31,17 +30,16 @@ object HMIRPlugin : HTPlugin.Material {
     val PURIFIED_ORE = HTShapeKey.of("purified_ore")
 
     override fun registerShape(builder: HTShapeRegistry.Builder) {
-        builder.add(CHUNK)
-        builder.add(PURIFIED_ORE)
+        builder.createItemShape(CHUNK)
+        builder.createItemShape(PURIFIED_ORE)
+
+        builder.getBuilder(HTShapeKeys.DUST)?.addBlacklist(HTMaterialKeys.NIKOLITE)
+        builder.getBuilder(HTShapeKeys.INGOT)?.addBlacklist(HTMaterialKeys.NIKOLITE)
     }
 
     override fun registerMaterial(builder: HTMaterialRegistry.Builder) {
-        builder.getOrCreate(HTMaterialKeys.NIKOLITE)
-            .composition(HTMaterialComposition.molecular())
+        builder.createMetal(HTMaterialKeys.NIKOLITE, false)
             .color(averageColor(HTColor.DARK_BLUE, HTColor.DARK_GREEN))
-            .addMetalItems(true)
-            .removeItem(HTShapeKeys.DUST)
-            .removeItem(HTShapeKeys.INGOT)
     }
 
     override fun bindMaterialWithFluid(builder: HTMaterialFluidManager.Builder) {

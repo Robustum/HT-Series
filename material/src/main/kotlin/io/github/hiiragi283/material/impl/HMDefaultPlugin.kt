@@ -1,66 +1,44 @@
 package io.github.hiiragi283.material.impl
 
-import io.github.hiiragi283.api.extension.HTColor
+import io.github.hiiragi283.api.extension.buildLootPool
+import io.github.hiiragi283.api.extension.buildLootTable
 import io.github.hiiragi283.api.extension.prefix
-import io.github.hiiragi283.api.fluid.HTMaterialFluidVariantRenderHandler
-import io.github.hiiragi283.api.fluid.HTSimpleFluidRenderHandler
+import io.github.hiiragi283.api.extension.rolls
+import io.github.hiiragi283.api.extension.surviveExplosion
 import io.github.hiiragi283.api.fluid.phase.HTFluidPhase
 import io.github.hiiragi283.api.fluid.phase.HTMaterialFluidManager
 import io.github.hiiragi283.api.item.shape.HTMaterialItemManager
-import io.github.hiiragi283.api.item.shape.HTShape
 import io.github.hiiragi283.api.item.shape.HTShapeKey
 import io.github.hiiragi283.api.item.shape.HTShapeKeys
-import io.github.hiiragi283.api.material.HTMaterial
 import io.github.hiiragi283.api.material.HTMaterialKey
 import io.github.hiiragi283.api.material.HTMaterialKeys
+import io.github.hiiragi283.api.material.content.HTMaterialContentGroup
 import io.github.hiiragi283.api.material.content.HTMaterialOre
+import io.github.hiiragi283.api.material.content.HTMaterialStorage
 import io.github.hiiragi283.api.material.property.HTConfiguredFeatureProperty
-import io.github.hiiragi283.api.material.property.HTItemModelProperty
 import io.github.hiiragi283.api.material.property.HTMaterialProperties
-import io.github.hiiragi283.api.material.property.HTStorageBlockRecipe
 import io.github.hiiragi283.api.module.HTApiHolder
 import io.github.hiiragi283.api.module.HTMaterialsAPI
 import io.github.hiiragi283.api.module.HTModuleType
 import io.github.hiiragi283.api.module.HTPlugin
+import io.github.hiiragi283.api.property.HTPropertyHolder
 import io.github.hiiragi283.api.recipe.HTGrindingRecipe
-import io.github.hiiragi283.api.resource.HTRuntimeClientPack
 import io.github.hiiragi283.api.resource.HTRuntimeDataRegistry
 import io.github.hiiragi283.api.resource.recipe.HTCookingRecipeBuilder
 import io.github.hiiragi283.api.resource.recipe.HTShapedRecipeBuilder
 import io.github.hiiragi283.api.resource.recipe.HTShapelessRecipeBuilder
-import net.fabricmc.api.EnvType
-import net.fabricmc.api.Environment
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications
-import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap
-import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry
-import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry
 import net.fabricmc.fabric.api.registry.FuelRegistry
-import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering
 import net.minecraft.block.Block
-import net.minecraft.client.color.block.BlockColorProvider
-import net.minecraft.client.color.item.ItemColorProvider
-import net.minecraft.data.client.model.BlockStateVariant
-import net.minecraft.data.client.model.ModelIds
-import net.minecraft.data.client.model.VariantSettings
-import net.minecraft.data.client.model.VariantsBlockStateSupplier
-import net.minecraft.fluid.Fluid
 import net.minecraft.fluid.Fluids
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
-import net.minecraft.loot.ConstantLootTableRange
-import net.minecraft.loot.LootPool
-import net.minecraft.loot.LootTable
-import net.minecraft.loot.condition.SurvivesExplosionLootCondition
-import net.minecraft.loot.context.LootContextTypes
 import net.minecraft.loot.entry.ItemEntry
 import net.minecraft.recipe.Ingredient
 import net.minecraft.tag.ItemTags
 import net.minecraft.util.registry.BuiltinRegistries
 import net.minecraft.util.registry.Registry
-import java.util.function.Function
-import kotlin.collections.component1
-import kotlin.collections.component2
 
 internal object HMDefaultPlugin : HTPlugin.Material {
     override val modId: String = HTModuleType.MATERIAL.modId
@@ -76,7 +54,7 @@ internal object HMDefaultPlugin : HTPlugin.Material {
     }
 
     override fun afterMaterialRegistration(instance: HTMaterialsAPI, isClient: Boolean) {
-        instance.materialRegistry.forEach { key, material ->
+        instance.materialRegistry.forEach { key: HTMaterialKey, material: HTPropertyHolder ->
             // Feature Registration
             material.forEachProperties { _, property ->
                 (property as? HTConfiguredFeatureProperty)?.let(::registerFeature)
@@ -86,42 +64,41 @@ internal object HMDefaultPlugin : HTPlugin.Material {
             }
         }
         // Block
-        instance.materialRegistry.blocks.forEach { (material: HTMaterial, shape: HTShape, block: Block) ->
+        instance.materialContentManager.blockGroup.forEach { materialKey: HTMaterialKey, shapeKey: HTShapeKey, block: Block ->
             // LootTable
-            material.getOrDefault(
-                HTMaterialProperties.blockLoot(shape.key),
-                Function {
-                    LootTable.Builder()
-                        .type(LootContextTypes.BLOCK)
-                        .pool(
-                            LootPool.builder()
-                                .rolls(ConstantLootTableRange.create(1))
-                                .with(ItemEntry.builder(it))
-                                .conditionally(SurvivesExplosionLootCondition.builder()),
-                        )
-                },
-            ).let { HTRuntimeDataRegistry.addBlockLootTable(block, it::apply) }
+            materialKey.get().getOrDefault(HTMaterialProperties.blockLoot(shapeKey)) {
+                buildLootTable {
+                    pool(
+                        buildLootPool {
+                            rolls(1)
+                            with(ItemEntry.builder(it))
+                            surviveExplosion()
+                        },
+                    )
+                }
+            }.let { HTRuntimeDataRegistry.addBlockLootTable(block, it) }
         }
         // Item
-        instance.materialRegistry.forEach { (key: HTMaterialKey, material: HTMaterial) ->
+        val itemGroup: HTMaterialContentGroup<HTShapeKey, Item> = instance.materialContentManager.itemGroup
+        instance.materialRegistry.forEach { key: HTMaterialKey, material: HTPropertyHolder ->
             // Recipes
-            registerIngotDecomposeRecipe(key, material)
-            registerIngotConstructRecipe(key, material)
+            registerIngotDecomposeRecipe(key, itemGroup)
+            registerIngotConstructRecipe(key, itemGroup)
             // If default shape exists
             material[HTMaterialProperties.DEFAULT_ITEM_SHAPE]
-                ?.let { shapeKey ->
-                    registerGearConstructRecipe(key, material, shapeKey)
-                    if (material.getOrDefault(HTMaterialProperties.CAN_SMELT_CHUNK, false)) {
-                        registerChunkSmeltingRecipe(key, material, shapeKey)
+                ?.let { defaultKey ->
+                    registerGearConstructRecipe(key, defaultKey, itemGroup)
+                    if (material[HTMaterialProperties.DEFAULT_ITEM_SHAPE] == HTShapeKeys.INGOT) {
+                        registerChunkSmeltingRecipe(key, defaultKey, itemGroup)
                     }
-                    if (material.getOrDefault(HTMaterialProperties.CAN_GRIND_CHUNK, false)) {
-                        registerChunkGrindingRecipe(key, material, shapeKey)
+                    if (material[HTMaterialProperties.DEFAULT_ITEM_SHAPE] == HTShapeKeys.GEM) {
+                        registerChunkGrindingRecipe(key, defaultKey, itemGroup)
                     }
                 }
             // If HTStorageBlockRecipe property exists
-            material[HTMaterialProperties.STORAGE_BLOCK_RECIPE]?.let { recipeProperty ->
-                registerBlockDecomposeRecipe(key, material, recipeProperty.count)
-                registerBlockConstructRecipe(key, material, recipeProperty)
+            material[HTMaterialProperties.STORAGE]?.let { property: HTMaterialStorage ->
+                registerBlockDecomposeRecipe(key, itemGroup, property.count)
+                registerBlockConstructRecipe(key, material, property)
             }
         }
         // Item Misc
@@ -134,12 +111,12 @@ internal object HMDefaultPlugin : HTPlugin.Material {
             200 * 16,
         )
         // Client-init
-        if (isClient) afterMaterialRegisteredOnClient(instance)
+        // if (isClient) afterMaterialRegisteredOnClient(instance)
     }
 
     // Ingot -> 9x Nuggets
-    private fun registerIngotDecomposeRecipe(key: HTMaterialKey, material: HTMaterial) {
-        material.getItem(HTShapeKeys.NUGGET)?.run {
+    private fun registerIngotDecomposeRecipe(key: HTMaterialKey, itemGroup: HTMaterialContentGroup<HTShapeKey, Item>) {
+        itemGroup.get(key, HTShapeKeys.NUGGET)?.run {
             HTRuntimeDataRegistry.addRecipe(
                 HTShapelessRecipeBuilder()
                     .output { ItemStack(this, 9) }
@@ -152,8 +129,8 @@ internal object HMDefaultPlugin : HTPlugin.Material {
     }
 
     // 9x Nuggets -> Ingot
-    private fun registerIngotConstructRecipe(key: HTMaterialKey, material: HTMaterial) {
-        material.getItem(HTShapeKeys.INGOT)?.run {
+    private fun registerIngotConstructRecipe(key: HTMaterialKey, itemGroup: HTMaterialContentGroup<HTShapeKey, Item>) {
+        itemGroup.get(key, HTShapeKeys.INGOT)?.run {
             HTRuntimeDataRegistry.addRecipe(
                 HTShapedRecipeBuilder()
                     .inputs(3, 3) {
@@ -171,8 +148,12 @@ internal object HMDefaultPlugin : HTPlugin.Material {
     }
 
     // 4x Ingots/Gem + Iron Nugget -> Gear
-    private fun registerGearConstructRecipe(materialKey: HTMaterialKey, material: HTMaterial, shapeKey: HTShapeKey) {
-        material.getItem(HTShapeKeys.GEAR)?.run {
+    private fun registerGearConstructRecipe(
+        materialKey: HTMaterialKey,
+        shapeKey: HTShapeKey,
+        itemGroup: HTMaterialContentGroup<HTShapeKey, Item>,
+    ) {
+        itemGroup.get(materialKey, HTShapeKeys.GEAR)?.run {
             HTRuntimeDataRegistry.addRecipe(
                 HTShapedRecipeBuilder()
                     .inputs(3, 3) {
@@ -189,8 +170,12 @@ internal object HMDefaultPlugin : HTPlugin.Material {
     }
 
     // 1x Chunk -> 1x Ingot
-    private fun registerChunkSmeltingRecipe(materialKey: HTMaterialKey, material: HTMaterial, shapeKey: HTShapeKey) {
-        material.getItem(shapeKey)?.run {
+    private fun registerChunkSmeltingRecipe(
+        materialKey: HTMaterialKey,
+        shapeKey: HTShapeKey,
+        itemGroup: HTMaterialContentGroup<HTShapeKey, Item>,
+    ) {
+        itemGroup.get(materialKey, shapeKey)?.run {
             // Smelting Recipe
             HTRuntimeDataRegistry.addRecipe(
                 HTCookingRecipeBuilder()
@@ -209,8 +194,12 @@ internal object HMDefaultPlugin : HTPlugin.Material {
     }
 
     // 1x Chunk -> 1x Gem
-    private fun registerChunkGrindingRecipe(materialKey: HTMaterialKey, material: HTMaterial, shapeKey: HTShapeKey) {
-        material.getItem(shapeKey)?.run {
+    private fun registerChunkGrindingRecipe(
+        materialKey: HTMaterialKey,
+        shapeKey: HTShapeKey,
+        itemGroup: HTMaterialContentGroup<HTShapeKey, Item>,
+    ) {
+        itemGroup.get(materialKey, shapeKey)?.run {
             // Grinding
             HTRuntimeDataRegistry.addRecipe(
                 HTGrindingRecipe(
@@ -223,10 +212,10 @@ internal object HMDefaultPlugin : HTPlugin.Material {
     }
 
     // Block -> 4/9x Ingots/Gems
-    private fun registerBlockDecomposeRecipe(materialKey: HTMaterialKey, material: HTMaterial, count: Int) {
+    private fun registerBlockDecomposeRecipe(materialKey: HTMaterialKey, itemGroup: HTMaterialContentGroup<HTShapeKey, Item>, count: Int) {
         val defaultShape: HTShapeKey = materialKey.get()[HTMaterialProperties.DEFAULT_ITEM_SHAPE]
             ?: return
-        val output: Item = material.getItem(defaultShape) ?: return
+        val output: Item = itemGroup.get(materialKey, defaultShape) ?: return
         HTRuntimeDataRegistry.addRecipe(
             HTShapelessRecipeBuilder()
                 .output { ItemStack(output, count) }
@@ -238,8 +227,8 @@ internal object HMDefaultPlugin : HTPlugin.Material {
     }
 
     // 4/9x Ingots/Gems -> Block
-    private fun registerBlockConstructRecipe(materialKey: HTMaterialKey, material: HTMaterial, recipeProperty: HTStorageBlockRecipe) {
-        val block: Block = recipeProperty.block ?: return
+    private fun registerBlockConstructRecipe(materialKey: HTMaterialKey, material: HTPropertyHolder, recipeProperty: HTMaterialStorage) {
+        val block: Block = recipeProperty.block
         val defaultShape: HTShapeKey = material[HTMaterialProperties.DEFAULT_ITEM_SHAPE]
             ?: return
         HTRuntimeDataRegistry.addRecipe(
@@ -254,16 +243,17 @@ internal object HMDefaultPlugin : HTPlugin.Material {
         )
     }
 
-    @Suppress("UnstableApiUsage")
+    /*@Suppress("UnstableApiUsage")
     @Environment(EnvType.CLIENT)
     private fun afterMaterialRegisteredOnClient(instance: HTMaterialsAPI) {
         // Block
-        instance.materialRegistry.blocks.forEach { (material: HTMaterial, shape: HTShape, block: Block) ->
+        instance.materialContentManager.blockGroup.forEach { materialKey: HTMaterialKey, shapeKey: HTShapeKey, block: Block ->
+            val material: HTPropertyHolder = materialKey.get()
             // Color
             material[HTMaterialProperties.COLOR]?.rgb?.let { color ->
                 ColorProviderRegistry.BLOCK.register(
                     material.getOrDefault(
-                        HTMaterialProperties.blockColor(shape.key),
+                        HTMaterialProperties.blockColor(shapeKey),
                         BlockColorProvider { _, _, _, tintIndex -> if (tintIndex == 0) color else -1 },
                     ),
                     block,
@@ -271,7 +261,7 @@ internal object HMDefaultPlugin : HTPlugin.Material {
             }
             // BlockState
             material.getOrDefault(
-                HTMaterialProperties.blockState(shape.key),
+                HTMaterialProperties.blockState(shapeKey),
                 Function {
                     VariantsBlockStateSupplier.create(
                         it,
@@ -280,36 +270,37 @@ internal object HMDefaultPlugin : HTPlugin.Material {
                 },
             ).let { HTRuntimeClientPack.addBlockState(block, it::apply) }
             // Block Model
-            material[HTMaterialProperties.blockModel(shape.key)]
+            material[HTMaterialProperties.blockModel(shapeKey)]
                 ?.let { HTRuntimeClientPack.addBlockModel(block, it::accept) }
             // RenderLayer
-            material[HTMaterialProperties.blockLayer(shape.key)]
+            material[HTMaterialProperties.blockLayer(shapeKey)]
                 ?.let { BlockRenderLayerMap.INSTANCE.putBlock(block, it) }
         }
         // Fluid
-        instance.materialRegistry.fluids.forEach { (material: HTMaterial, phase: HTFluidPhase, fluid: Fluid) ->
+        instance.materialContentManager.fluidGroup.forEach { materialKey: HTMaterialKey, fluidPhase: HTFluidPhase, fluid: Fluid ->
             // Render
-            val color: Int = material.getOrDefault(HTMaterialProperties.COLOR, HTColor.WHITE).rgb
+            val color: Int = materialKey.get().getOrDefault(HTMaterialProperties.COLOR, HTColor.WHITE).rgb
             FluidRenderHandlerRegistry.INSTANCE.register(
                 fluid,
                 HTSimpleFluidRenderHandler(
-                    phase.textureId,
-                    phase.textureId,
+                    fluidPhase.textureId,
+                    fluidPhase.textureId,
                     color,
                 ),
             )
             FluidVariantRendering.register(
                 fluid,
-                HTMaterialFluidVariantRenderHandler(material, phase),
+                HTMaterialFluidVariantRenderHandler(materialKey, fluidPhase),
             )
         }
         // Item
-        instance.materialRegistry.items.forEach { (material: HTMaterial, shape: HTShape, item: Item) ->
+        instance.materialContentManager.itemGroup.forEach { materialKey: HTMaterialKey, shapeKey: HTShapeKey, item: Item ->
+            val material: HTPropertyHolder = materialKey.get()
             // Color
             material[HTMaterialProperties.COLOR]?.rgb?.let { color ->
                 ColorProviderRegistry.ITEM.register(
                     material.getOrDefault(
-                        HTMaterialProperties.itemColor(shape.key),
+                        HTMaterialProperties.itemColor(shapeKey),
                         ItemColorProvider { _, tintIndex -> if (tintIndex == 0) color else -1 },
                     ),
                     item,
@@ -317,11 +308,11 @@ internal object HMDefaultPlugin : HTPlugin.Material {
             }
             // Model
             material.getOrDefault(
-                HTMaterialProperties.itemModel(shape.key),
-                HTItemModelProperty.ofSimple(shape.key),
+                HTMaterialProperties.itemModel(shapeKey),
+                HTItemModelProperty.ofSimple(shapeKey),
             ).let { HTRuntimeClientPack.addItemModel(item) { builder, _ -> it.accept(builder) } }
         }
-    }
+    }*/
 
     override fun bindMaterialWithFluid(builder: HTMaterialFluidManager.Builder) {
         super.bindMaterialWithFluid(builder)
@@ -329,8 +320,8 @@ internal object HMDefaultPlugin : HTPlugin.Material {
         builder.add(HTMaterialKeys.WATER, HTFluidPhase.LIQUID, Fluids.WATER)
         builder.add(HTMaterialKeys.LAVA, HTFluidPhase.LIQUID, Fluids.LAVA)
         // Register fluids from content registry
-        HTApiHolder.Material.apiInstance.materialRegistry.fluids.forEach { (material: HTMaterial, phase: HTFluidPhase, fluid: Fluid) ->
-            builder.add(material, phase, fluid)
+        HTApiHolder.Material.apiInstance.materialContentManager.fluidGroup.forEach { materialKey, fluidPhase, fluid ->
+            builder.add(materialKey, fluidPhase, fluid)
         }
     }
 
@@ -339,8 +330,8 @@ internal object HMDefaultPlugin : HTPlugin.Material {
         // Register vanilla items
         // registerVanillaItems(builder)
         // Register items from content registry
-        HTApiHolder.Material.apiInstance.materialRegistry.items.forEach { (material: HTMaterial, shape: HTShape, item: Item) ->
-            builder.add(material, shape.key, item)
+        HTApiHolder.Material.apiInstance.materialContentManager.itemGroup.forEach { materialKey, shapeKey, item ->
+            builder.add(materialKey, shapeKey, item)
         }
     }
 

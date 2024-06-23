@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 
 plugins {
-    kotlin("jvm").version("1.9.24")
+    kotlin("jvm").version("2.0.0")
     id("fabric-loom").version("1.6-SNAPSHOT").apply(false)
     id("org.jlleitschuh.gradle.ktlint").version("12.1.0")
 }

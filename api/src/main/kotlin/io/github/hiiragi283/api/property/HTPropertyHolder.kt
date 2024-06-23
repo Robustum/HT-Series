@@ -20,6 +20,10 @@ interface HTPropertyHolder {
     companion object {
         @JvmField
         val EMPTY: HTPropertyHolder = Empty
+
+        @JvmStatic
+        fun create(map: MutableMap<TypedIdentifier<*>, Any> = mutableMapOf(), builderAction: Mutable.() -> Unit = {}): HTPropertyHolder =
+            Builder(map).apply(builderAction)
     }
 
     private object Empty : HTPropertyHolder {
@@ -28,5 +32,23 @@ interface HTPropertyHolder {
         override fun contains(id: TypedIdentifier<*>): Boolean = false
 
         override fun forEachProperties(action: (TypedIdentifier<*>, Any) -> Unit) = Unit
+    }
+
+    private class Builder(private val map: MutableMap<TypedIdentifier<*>, Any>) : Mutable {
+        override fun <T : Any> get(id: TypedIdentifier<T>): T? = id.cast(map[id])
+
+        override fun contains(id: TypedIdentifier<*>): Boolean = id in map
+
+        override fun forEachProperties(action: (TypedIdentifier<*>, Any) -> Unit) {
+            map.forEach(action)
+        }
+
+        override fun <T : Any> set(id: TypedIdentifier<T>, value: T) {
+            map[id] = value
+        }
+
+        override fun remove(id: TypedIdentifier<*>) {
+            map.remove(id)
+        }
     }
 }

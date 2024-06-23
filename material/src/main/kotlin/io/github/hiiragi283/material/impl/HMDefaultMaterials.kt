@@ -9,8 +9,7 @@ import io.github.hiiragi283.api.material.HTMaterialKeys
 import io.github.hiiragi283.api.material.HTMaterialRegistry
 import io.github.hiiragi283.api.material.composition.HTElements
 import io.github.hiiragi283.api.material.composition.HTMaterialComposition
-import io.github.hiiragi283.api.material.content.HTMaterialOre
-import io.github.hiiragi283.api.material.property.HTMaterialGemType
+import io.github.hiiragi283.api.material.type.HTMaterialType
 import io.github.hiiragi283.api.module.HTModuleType
 import io.github.hiiragi283.api.module.HTPlugin
 import java.awt.Color
@@ -21,234 +20,223 @@ internal object HMDefaultMaterials : HTPlugin.Material {
 
     override fun registerShape(builder: HTShapeRegistry.Builder) {
         // Block
-        builder.add(HTShapeKeys.BLOCK)
-        builder.add(HTShapeKeys.BRICKS)
-        builder.add(HTShapeKeys.LOG)
-        builder.add(HTShapeKeys.ORE)
-        builder.add(HTShapeKeys.ORE_NETHER, "nether_%s_ore", "%s_ores")
-        builder.add(HTShapeKeys.ORE_BLACKSTONE, "blackstone_%s_ore", "%s_ores")
-        builder.add(HTShapeKeys.ORE_END, "end_%s_ore", "%s_ores")
-        builder.add(HTShapeKeys.ORE_GRAVEL, "gravel_%s_ore", "%s_ores")
-        builder.add(HTShapeKeys.ORE_SAND, "sand_%s_ore", "%s_ores")
-        builder.add(HTShapeKeys.PLANKS)
+        builder.createBlockShape(HTShapeKeys.BLOCK)
+            .addBlacklist(
+                HTMaterialKeys.COAL,
+                HTMaterialKeys.DIAMOND,
+                HTMaterialKeys.EMERALD,
+                HTMaterialKeys.GOLD,
+                HTMaterialKeys.IRON,
+                HTMaterialKeys.NETHERITE,
+                HTMaterialKeys.QUARTZ,
+                HTMaterialKeys.REDSTONE,
+            )
+        builder.createBlockShape(HTShapeKeys.BRICKS)
+        builder.createBlockShape(HTShapeKeys.LOG)
+            .addBlacklist(
+                HTMaterialKeys.WOOD,
+            )
+        builder.createBlockShape(HTShapeKeys.ORE)
+            .addBlacklist(
+                HTMaterialKeys.COAL,
+                HTMaterialKeys.DIAMOND,
+                HTMaterialKeys.EMERALD,
+                HTMaterialKeys.GOLD,
+                HTMaterialKeys.IRON,
+                HTMaterialKeys.REDSTONE,
+            )
+        builder.createBlockShape(HTShapeKeys.ORE_NETHER, "nether_%s_ore", "%s_ores")
+            .addBlacklist(
+                HTMaterialKeys.QUARTZ,
+            )
+        builder.createBlockShape(HTShapeKeys.ORE_BLACKSTONE, "blackstone_%s_ore", "%s_ores")
+        builder.createBlockShape(HTShapeKeys.ORE_END, "end_%s_ore", "%s_ores")
+        builder.createBlockShape(HTShapeKeys.ORE_GRAVEL, "gravel_%s_ore", "%s_ores")
+        builder.createBlockShape(HTShapeKeys.ORE_SAND, "sand_%s_ore", "%s_ores")
+        builder.createBlockShape(HTShapeKeys.PLANKS)
+        // Fluid
+        HTFluidPhase.LIQUID.addBlacklist(HTMaterialKeys.WATER, HTMaterialKeys.LAVA)
         // Item
-        builder.add(HTShapeKeys.DUST)
-        builder.add(HTShapeKeys.GEAR)
-        builder.add(HTShapeKeys.GEM)
-        builder.add(HTShapeKeys.INGOT)
-        builder.add(HTShapeKeys.NUGGET)
-        builder.add(HTShapeKeys.PLATE)
-        builder.add(HTShapeKeys.RAW_CHUNK)
-        builder.add(HTShapeKeys.ROD)
+        builder.createItemShape(HTShapeKeys.DUST)
+            .addBlacklist(
+                HTMaterialKeys.REDSTONE,
+                HTMaterialKeys.GLOWSTONE,
+            )
+        builder.createItemShape(HTShapeKeys.GEAR)
+        builder.createItemShape(HTShapeKeys.GEM)
+            .addBlacklist(
+                HTMaterialKeys.DIAMOND,
+                HTMaterialKeys.EMERALD,
+                HTMaterialKeys.FLINT,
+                HTMaterialKeys.LAPIS,
+                HTMaterialKeys.QUARTZ,
+            )
+
+        builder.createItemShape(HTShapeKeys.INGOT)
+            .addBlacklist(
+                HTMaterialKeys.GOLD,
+                HTMaterialKeys.IRON,
+                HTMaterialKeys.NETHERITE,
+            )
+        builder.createItemShape(HTShapeKeys.NUGGET)
+            .addBlacklist(
+                HTMaterialKeys.GOLD,
+                HTMaterialKeys.IRON,
+            )
+        builder.createItemShape(HTShapeKeys.PLATE)
+        builder.createItemShape(HTShapeKeys.RAW_CHUNK)
+        builder.createItemShape(HTShapeKeys.ROD)
     }
 
     override fun registerMaterial(builder: HTMaterialRegistry.Builder) {
         // H
-        builder.addSimpleMaterial(HTMaterialKeys.HYDROGEN, HTElements.H to 2)
-            .addVirtualFluid(HTFluidPhase.GAS)
-        builder.addSimpleMaterial(HTMaterialKeys.WATER, HTElements.H to 2, HTElements.O to 1)
+        builder.createGas(HTMaterialKeys.HYDROGEN)
+            .molecular(HTElements.H to 2)
+        builder.createLiquid(HTMaterialKeys.WATER)
+            .molecular(HTElements.H to 2, HTElements.O to 1)
             .color(HTColor.BLUE)
+        // REMOVE WATER FLUID
         // He
-        builder.addSimpleMaterial(HTMaterialKeys.HELIUM, HTElements.He to 1)
-            .addVirtualFluid(HTFluidPhase.GAS)
+        builder.createGas(HTMaterialKeys.HELIUM)
+            .molecular(HTElements.He to 1)
         // Li
-        builder.addMetalMaterial(HTMaterialKeys.LITHIUM, HTElements.Li)
+        builder.createMetal(HTMaterialKeys.LITHIUM, false)
+            .molecular(HTElements.Li to 1)
             .add3x3StorageBlock()
-            .addMetalItems(false)
         // Be
-        builder.addMetalMaterial(HTMaterialKeys.BERYLLIUM, HTElements.Be, false)
-            .add3x3StorageBlock()
-            .addMetalItems(false)
-        builder.addGemMaterial(
-            HTMaterialKeys.EMERALD,
-            HTMaterialComposition.molecular(
+        builder.createMetal(HTMaterialKeys.BERYLLIUM, false)
+            .molecular(HTElements.Be to 1)
+            .add3x3StorageBlock(2)
+        builder.createGem(HTMaterialKeys.EMERALD, HTMaterialType.Gem.EMERALD)
+            .molecular(
                 HTElements.Be to 3,
                 HTElements.Al to 2,
                 HTElements.Si to 6,
                 HTElements.O to 18,
-            ),
-            HTMaterialGemType.EMERALD,
-        ).color(HTColor.GREEN)
-            .addGemItems(true)
-            .removeItem(HTShapeKeys.GEM)
+            )
+            .color(HTColor.GREEN)
         // B
         // C
-        builder.addSimpleMaterial(HTMaterialKeys.CARBON, HTElements.C to 1)
-            .addItem(HTShapeKeys.DUST)
-            .addItem(HTShapeKeys.PLATE)
-        builder.addSimpleMaterial(HTMaterialKeys.ASHES, HTElements.C)
+        builder.createSolid(HTMaterialKeys.CARBON)
+            .molecular(HTElements.C to 1)
+        builder.createSolid(HTMaterialKeys.ASHES)
+            .mixture(HTElements.C)
             .color(HTColor.DARK_GRAY)
-            .addItem(HTShapeKeys.DUST)
-            .addItem(HTShapeKeys.PLATE)
-        builder.addSimpleMaterial(HTMaterialKeys.CHARCOAL, HTElements.C to 1)
+        builder.createSolid(HTMaterialKeys.CHARCOAL)
+            .mixture(HTElements.C)
             .color(averageColor(HTColor.BLACK to 7, HTColor.YELLOW to 1))
+        builder.createSolid(HTMaterialKeys.COAL)
+            .mixture(HTElements.C)
+        builder.createGem(HTMaterialKeys.COKE, HTMaterialType.Gem.COAL)
+            .mixture(HTElements.C)
+            .color(HTColor.DARK_GRAY)
             .add3x3StorageBlock()
-            .addItem(HTShapeKeys.DUST)
-        builder.addGemMaterial(HTMaterialKeys.COAL, HTElements.C, HTMaterialGemType.COAL)
-            .addItem(HTShapeKeys.DUST)
-        builder.addGemMaterial(
-            HTMaterialKeys.COKE,
-            HTMaterialComposition.molecular(HTElements.C to 1),
-            HTMaterialGemType.COAL,
-        ).color(HTColor.DARK_GRAY)
-            .add3x3StorageBlock()
-            .addGemItems(false)
-        builder.addGemMaterial(
-            HTMaterialKeys.DIAMOND,
-            HTMaterialComposition.molecular(HTElements.C to 1),
-            HTMaterialGemType.DIAMOND,
-        ).color(HTColor.AQUA)
-            .addGemItems(true)
-            .removeItem(HTShapeKeys.GEM)
-        builder.addSimpleMaterial(HTMaterialKeys.MILK, HTElements.C, HTElements.H, HTElements.O)
-            .addVirtualFluid(HTFluidPhase.LIQUID)
-        builder.addPolymerMaterial(HTMaterialKeys.RUBBER, HTElements.C to 5, HTElements.H to 6)
+        builder.createGem(HTMaterialKeys.DIAMOND, HTMaterialType.Gem.DIAMOND)
+            .molecular(HTElements.C to 1)
+            .color(HTColor.AQUA)
+        builder.createLiquid(HTMaterialKeys.MILK)
+            .mixture(HTElements.C, HTElements.H, HTElements.O)
+        builder.createSolid(HTMaterialKeys.RUBBER)
+            .polymer(HTElements.C to 5, HTElements.H to 6)
             .color(averageColor(HTColor.BLACK, HTColor.DARK_GRAY))
             .formula("CC(=C)C=C")
-            .add3x3StorageBlock()
-            .addMetalItems(false)
-        builder.addSimpleMaterial(HTMaterialKeys.WOOD, HTElements.C, HTElements.H, HTElements.O)
+            .add3x3StorageBlock(0)
+        builder.createWood(HTMaterialKeys.WOOD)
+            .mixture(HTElements.C, HTElements.H, HTElements.O)
             .color(averageColor(HTColor.DARK_GRAY to 2, HTColor.RED to 1, HTColor.YELLOW to 1))
-            .formula("(C, H, O)")
-            .addItem(HTShapeKeys.DUST)
-            .addItem(HTShapeKeys.PLATE)
         // N
-        builder.addSimpleMaterial(HTMaterialKeys.NITROGEN, HTElements.N to 2)
-            .addVirtualFluid(HTFluidPhase.GAS)
-        builder.addSimpleMaterial(HTMaterialKeys.AMMONIA, HTElements.N to 1, HTElements.H to 3)
-            .addVirtualFluid(HTFluidPhase.GAS)
-        builder.addGemMaterial(
-            HTMaterialKeys.NITER,
-            HTMaterialComposition.molecular(HTElements.H to 1, HTElements.NO3 to 1),
-            HTMaterialGemType.LAPIS,
-        )
-            .addGemOreBlock(HTMaterialOre.Rock.STONE)
-            .addGemItems(false)
-        builder.addSimpleMaterial(HTMaterialKeys.NITRIC_ACID, HTElements.H to 1, HTElements.NO3 to 1)
-            .addVirtualFluid(HTFluidPhase.LIQUID)
+        builder.createGas(HTMaterialKeys.NITROGEN)
+            .molecular(HTElements.N to 2)
+        builder.createGas(HTMaterialKeys.AMMONIA)
+            .molecular(HTElements.N to 1, HTElements.H to 3)
+        builder.createGem(HTMaterialKeys.NITER, HTMaterialType.Gem.LAPIS)
+            .molecular(HTElements.H to 1, HTElements.NO3 to 1)
+        builder.createLiquid(HTMaterialKeys.NITRIC_ACID)
+            .molecular(HTElements.H to 1, HTElements.NO3 to 1)
         // O
-        builder.addSimpleMaterial(HTMaterialKeys.OXYGEN, HTElements.O to 2)
-            .addVirtualFluid(HTFluidPhase.GAS)
+        builder.createGas(HTMaterialKeys.OXYGEN)
+            .molecular(HTElements.O to 2)
         // F
-        builder.addSimpleMaterial(HTMaterialKeys.FLUORINE, HTElements.F to 2)
-            .addVirtualFluid(HTFluidPhase.GAS)
-        builder.addGemMaterial(
-            HTMaterialKeys.FLUORITE,
-            HTMaterialComposition.molecular(HTElements.Ca to 1, HTElements.F to 2),
-            HTMaterialGemType.LAPIS,
-        ).color(HTColor.GREEN)
-            .addGemOreBlock(HTMaterialOre.Rock.STONE)
-            .addGemOreBlock(HTMaterialOre.Rock.NETHER)
-            .addGemItems(false)
-        builder.addSimpleMaterial(HTMaterialKeys.HYDROGEN_FLUORIDE, HTElements.H to 1, HTElements.F to 1)
+        builder.createGas(HTMaterialKeys.FLUORINE)
+            .molecular(HTElements.F to 2)
+        builder.createGem(HTMaterialKeys.FLUORITE, HTMaterialType.Gem.LAPIS)
+            .molecular(HTElements.Ca to 1, HTElements.F to 2)
+            .color(HTColor.GREEN)
+        builder.createGas(HTMaterialKeys.HYDROGEN_FLUORIDE)
+            .molecular(HTElements.H to 1, HTElements.F to 1)
             .color(averageColor(HTColor.GREEN, HTColor.AQUA))
-            .addVirtualFluid(HTFluidPhase.GAS)
         // Ne
         // Na
-        builder.addMetalMaterial(HTMaterialKeys.SODIUM, HTElements.Na)
-            .add3x3StorageBlock()
-            .addMetalItems(false)
-        builder.addSimpleMaterial(HTMaterialKeys.SODIUM_HYDROXIDE, HTElements.Na to 1, HTElements.OH to 1)
+        builder.createMetal(HTMaterialKeys.SODIUM, false)
+            .molecular(HTElements.Na to 1)
+        builder.createSolid(HTMaterialKeys.SODIUM_HYDROXIDE)
+            .molecular(HTElements.Na to 1, HTElements.OH to 1)
             .color(HTColor.WHITE)
-            .addItem(HTShapeKeys.DUST)
         // Mg
         // Al
-        builder.addMetalMaterial(HTMaterialKeys.ALUMINUM, HTElements.Al)
-            .add3x3StorageBlock()
-            .addMetalItems(true)
-        builder.addSimpleMaterial(HTMaterialKeys.ALUMINA, HTElements.Al2O3 to 1)
+        builder.createMetal(HTMaterialKeys.ALUMINUM)
+            .molecular(HTElements.Al to 1)
+        builder.createSolid(HTMaterialKeys.ALUMINA)
+            .molecular(HTElements.Al2O3 to 1)
             .color(HTColor.WHITE)
-            .addItem(HTShapeKeys.DUST)
-        builder.getOrCreate(HTMaterialKeys.BAUXITE)
+        builder.createSolid(HTMaterialKeys.BAUXITE)
             .composition(HTMaterialComposition.hydrate(HTElements.Al2O3 to 1, waterCount = 2))
             .color(averageColor(HTColor.BLACK to 1, HTColor.DARK_RED to 2, HTColor.GOLD to 1))
-            .addGemOreBlock(HTMaterialOre.Rock.STONE, 2)
-            .addItem(HTShapeKeys.DUST)
-        builder.addSimpleMaterial(HTMaterialKeys.BRICK, HTElements.Al2O3)
+        builder.createSolid(HTMaterialKeys.BRICK)
+            .mixture(HTElements.Al2O3)
             .color(averageColor(HTColor.DARK_RED to 2, HTColor.GOLD to 1, HTColor.DARK_GRAY to 2))
-            .addMetalItems(true)
-            .removeItem(HTShapeKeys.INGOT)
-            .removeItem(HTShapeKeys.NUGGET)
-        builder.addSimpleMaterial(HTMaterialKeys.CLAY, HTElements.Al2O3)
+        builder.createSolid(HTMaterialKeys.CLAY)
+            .mixture(HTElements.Al2O3)
             .color(Color(0xa4a8b8))
-            .addItem(HTShapeKeys.DUST)
-            .addMetalItems(true)
-            .removeItem(HTShapeKeys.INGOT)
-            .removeItem(HTShapeKeys.NUGGET)
-        builder.addGemMaterial(
-            HTMaterialKeys.SAPPHIRE,
-            HTElements.Al2O3,
-            HTMaterialGemType.RUBY,
-        ).color(HTColor.BLUE)
-            .addGemOreBlock(HTMaterialOre.Rock.STONE, 3)
-            .add3x3StorageBlock(3)
-            .addGemItems(true)
-        builder.addGemMaterial(
-            HTMaterialKeys.RUBY,
-            HTElements.Al2O3,
-            HTMaterialGemType.RUBY,
-        ).color(HTColor.RED)
-            .addGemOreBlock(HTMaterialOre.Rock.STONE, 3)
-            .add3x3StorageBlock(3)
-            .addGemItems(true)
+        builder.createGem(HTMaterialKeys.SAPPHIRE, HTMaterialType.Gem.RUBY)
+            .molecular(HTElements.Al2O3 to 1)
+            .color(HTColor.BLUE)
+        builder.createGem(HTMaterialKeys.RUBY, HTMaterialType.Gem.RUBY)
+            .molecular(HTElements.Al2O3 to 1)
+            .color(HTColor.RED)
         // Si
-        builder.addMetalMaterial(HTMaterialKeys.SILICON, HTElements.Si, false)
-            .add3x3StorageBlock(2)
-            .addMetalItems(false)
-        builder.addGemMaterial(HTMaterialKeys.FLINT, HTElements.SiO2, HTMaterialGemType.FLINT)
+        builder.createMetal(HTMaterialKeys.SILICON, false)
+            .molecular(HTElements.Si to 1)
+        builder.createGem(HTMaterialKeys.FLINT, HTMaterialType.Gem.FLINT)
+            .mixture(HTElements.SiO2)
             .color(averageColor(HTColor.BLACK, HTColor.GRAY))
-            .addGemItems(false)
-            .removeItem(HTShapeKeys.GEM)
-        builder.addGemMaterial(HTMaterialKeys.GLASS, HTElements.SiO2, HTMaterialGemType.QUARTZ).color(HTColor.WHITE)
-            .addGemItems(false)
-        builder.addGemMaterial(
-            HTMaterialKeys.LAPIS,
-            HTMaterialComposition.mixture(HTElements.SiO2),
-            HTMaterialGemType.LAPIS,
-        ).color(HTColor.BLUE)
-            .addGemItems(false)
-            .removeItem(HTShapeKeys.GEM)
-        builder.addSimpleMaterial(HTMaterialKeys.LAVA, HTElements.SiO2)
-            .color(averageColor(HTColor.DARK_RED, HTColor.GOLD))
-        builder.addGemMaterial(HTMaterialKeys.QUARTZ, HTElements.SiO2, HTMaterialGemType.QUARTZ).color(HTColor.WHITE)
-            .addGemItems(false)
-            .removeItem(HTShapeKeys.GEM)
-        builder.addMetalMaterial(HTMaterialKeys.REFINED_SILICON, HTElements.Si, true)
-            .add3x3StorageBlock(2)
-            .addMetalItems(false)
-        builder.addSimpleMaterial(HTMaterialKeys.SLAG, HTElements.SiO2)
-            .color(HTColor.DARK_GRAY)
-            .addItem(HTShapeKeys.DUST)
-        // P
-        builder.addSimpleMaterial(HTMaterialKeys.PHOSPHORUS, HTElements.P to 1)
-            .addItem(HTShapeKeys.DUST)
-        // S
-        builder.addGemMaterial(
-            HTMaterialKeys.SULFUR,
-            HTElements.S to 8,
-            HTMaterialGemType.FLINT,
-        )
-            .addGemOreBlock(HTMaterialOre.Rock.STONE)
-            .addGemItems(false)
-        builder.addSimpleMaterial(HTMaterialKeys.SULFUR_DIOXIDE, HTElements.S to 1, HTElements.O to 2)
-            .addVirtualFluid(HTFluidPhase.GAS)
-        builder.addSimpleMaterial(HTMaterialKeys.SULFUR_TRIOXIDE, HTElements.S to 1, HTElements.O to 3)
-            .addVirtualFluid(HTFluidPhase.GAS)
-        builder.addSimpleMaterial(HTMaterialKeys.SULFURIC_ACID, HTElements.H to 2, HTElements.SO4 to 1)
-            .addVirtualFluid(HTFluidPhase.LIQUID)
-        // Cl
-        builder.addSimpleMaterial(HTMaterialKeys.CHLORINE, HTElements.Cl to 2)
-            .addVirtualFluid(HTFluidPhase.GAS)
-        builder.addSimpleMaterial(HTMaterialKeys.HYDROGEN_CHLORIDE, HTElements.H to 1, HTElements.Cl to 1)
-            .addVirtualFluid(HTFluidPhase.GAS)
-        builder.addGemMaterial(
-            HTMaterialKeys.SALT,
-            HTMaterialComposition.molecular(HTElements.Na to 1, HTElements.Cl to 1),
-            HTMaterialGemType.FLINT,
-        )
+        builder.createGem(HTMaterialKeys.GLASS, HTMaterialType.Gem.QUARTZ)
+            .mixture(HTElements.SiO2)
             .color(HTColor.WHITE)
-            .addGemOreBlock(HTMaterialOre.Rock.STONE)
-            .addGemItems(false)
+        builder.createGem(HTMaterialKeys.LAPIS, HTMaterialType.Gem.LAPIS)
+            .mixture(HTElements.SiO2)
+            .color(HTColor.BLUE)
+        builder.createLiquid(HTMaterialKeys.LAVA)
+            .mixture(HTElements.SiO2)
+            .color(averageColor(HTColor.DARK_RED, HTColor.GOLD))
+        builder.createGem(HTMaterialKeys.QUARTZ, HTMaterialType.Gem.QUARTZ)
+            .molecular(HTElements.SiO2 to 1)
+            .color(HTColor.WHITE)
+        builder.createMetal(HTMaterialKeys.REFINED_SILICON)
+            .molecular(HTElements.Si to 1)
+        builder.createSolid(HTMaterialKeys.SLAG)
+            .mixture(HTElements.SiO2)
+            .color(HTColor.DARK_GRAY)
+        // P
+        builder.createSolid(HTMaterialKeys.PHOSPHORUS)
+            .molecular(HTElements.P to 1)
+        // S
+        builder.createGem(HTMaterialKeys.SULFUR, HTMaterialType.Gem.FLINT)
+            .molecular(HTElements.S to 8)
+        builder.createGas(HTMaterialKeys.SULFUR_DIOXIDE)
+            .molecular(HTElements.S to 1, HTElements.O to 2)
+        builder.createGas(HTMaterialKeys.SULFUR_TRIOXIDE)
+            .molecular(HTElements.S to 1, HTElements.O to 3)
+        builder.createLiquid(HTMaterialKeys.SULFURIC_ACID)
+            .molecular(HTElements.H to 2, HTElements.SO4 to 1)
+        // Cl
+        builder.createGas(HTMaterialKeys.CHLORINE)
+            .molecular(HTElements.Cl to 2)
+        builder.createGas(HTMaterialKeys.HYDROGEN_CHLORIDE)
+            .molecular(HTElements.H to 1, HTElements.Cl to 1)
+        builder.createGem(HTMaterialKeys.SALT, HTMaterialType.Gem.FLINT)
+            .molecular(HTElements.Na to 1, HTElements.Cl to 1)
+            .color(HTColor.WHITE)
         // Ar
 
         // K
@@ -257,23 +245,14 @@ internal object HMDefaultMaterials : HTPlugin.Material {
         // Cr
         // Mn
         // Fe
-        builder.addMetalMaterial(HTMaterialKeys.IRON, HTElements.Fe)
-            .addMetalItems(true)
-            .removeItem(HTShapeKeys.INGOT)
-            .removeItem(HTShapeKeys.NUGGET)
-        builder.addMetalMaterial(
-            HTMaterialKeys.STEEl,
-            HTMaterialComposition.mixture(HTElements.Fe, HTElements.C),
-            false,
-        )
+        builder.createMetal(HTMaterialKeys.IRON)
+            .molecular(HTElements.Fe to 1)
+        builder.createMetal(HTMaterialKeys.STEEl, false)
+            .mixture(HTElements.Fe, HTElements.C)
             .color(HTColor.DARK_GRAY)
-            .formula("(Fe, C)")
-            .add3x3StorageBlock(2)
-            .addMetalItems(true)
-        builder.addSimpleMaterial(HTMaterialKeys.RAW_STEEl, HTElements.Fe, HTElements.C)
+        builder.createSolid(HTMaterialKeys.RAW_STEEl)
+            .mixture(HTElements.Fe, HTElements.C)
             .color(HTColor.DARK_GRAY)
-            .formula("(Fe, C)")
-            .addItem(HTShapeKeys.DUST)
         // Co
         // Ni
         // Cu
@@ -360,7 +339,7 @@ internal object HMDefaultMaterials : HTPlugin.Material {
             HTMaterialComposition.molecular(HTElements.SiO2 to 1) {
                 color = averageColor(HTColor.BLUE, HTColor.LIGHT_PURPLE)
             },
-            HTMaterialGemType.AMETHYST,
+            HTMaterialTypeNew.Gem.AMETHYST,
         )
 
         builder.addGemMaterial(

@@ -4,6 +4,7 @@ import com.google.gson.JsonObject
 import com.mojang.serialization.Codec
 import com.mojang.serialization.JsonOps
 import com.mojang.serialization.codecs.RecordCodecBuilder
+import io.github.hiiragi283.api.extension.checkNotNull
 import io.github.hiiragi283.api.extension.decodeResult
 import io.github.hiiragi283.api.module.HTModuleType
 import io.github.hiiragi283.api.network.HTCodecSerializer
@@ -32,11 +33,8 @@ interface HTResult : Predicate<ItemStack>, UnaryOperator<ItemStack> {
                 .orElseThrow { IllegalStateException("") }
             return type.codec.decodeResult(JsonOps.INSTANCE, jsonObject)
                 .getOrNull()
-                .let {
-                    checkNotNull(it as? HTResult) {
-                        "Cannot cast $it into HTResult!"
-                    }
-                }
+                .let { it as? HTResult }
+                .checkNotNull { "Could not read HTResult!" }
         }
     }
 
@@ -106,9 +104,8 @@ interface HTResult : Predicate<ItemStack>, UnaryOperator<ItemStack> {
                     buf.writeVarInt(ingredient.level)
                 },
                 { buf ->
-                    val enchantment: Enchantment = checkNotNull(Registry.ENCHANTMENT.get(buf.readVarInt())) {
-                        "Invalid enchantment found!"
-                    }
+                    val enchantment: Enchantment = Registry.ENCHANTMENT.get(buf.readVarInt())
+                        .checkNotNull { "Invalid enchantment found!" }
                     val level: Int = buf.readVarInt()
                     EnchantImpl(enchantment, level)
                 },

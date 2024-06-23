@@ -3,6 +3,7 @@ package io.github.hiiragi283.api.recipe
 import com.google.gson.JsonObject
 import io.github.hiiragi283.api.energy.HTEnergyLevel
 import io.github.hiiragi283.api.energy.HTEnergyType
+import io.github.hiiragi283.api.extension.checkNotNull
 import net.minecraft.item.ItemStack
 import net.minecraft.network.PacketByteBuf
 import net.minecraft.recipe.RecipeSerializer
@@ -15,11 +16,12 @@ class HTRecipeType(val typeId: Identifier, val icon: () -> ItemStack) :
     RecipeType<HTRecipe>,
     RecipeSerializer<HTRecipe> {
     override fun read(id: Identifier, json: JsonObject): HTRecipe {
-        val type: HTRecipeType = JsonHelper.getString(json, "type")
+        val typeName = JsonHelper.getString(json, "type")
+        val type: HTRecipeType = typeName
             .let(::Identifier)
             .let(Registry.RECIPE_SERIALIZER::get)
             ?.let { it as? HTRecipeType }
-            .let { checkNotNull(it) }
+            .checkNotNull { "Could not find HTRecipeType named $typeName" }
         val ingredients: List<HTIngredient> = JsonHelper.getArray(json, "ingredients")
             .map { HTIngredient.fromJson(it.asJsonObject) }
         val results: List<HTResult> = JsonHelper.getArray(json, "results")

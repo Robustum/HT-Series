@@ -199,7 +199,7 @@ object HTRuntimeClientPack : ResourcePack {
                 true,
                 { HTRuntimeClientPack },
                 factory,
-                ResourcePackProfile.InsertionPosition.TOP,
+                ResourcePackProfile.InsertionPosition.BOTTOM,
                 { it },
             )?.let(profileAdder::accept)
         }

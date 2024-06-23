@@ -1,14 +1,16 @@
 package io.github.hiiragi283.api.material
 
+import io.github.hiiragi283.api.extension.checkNotNull
 import io.github.hiiragi283.api.module.HTApiHolder
 import io.github.hiiragi283.api.module.HTLogger
 import io.github.hiiragi283.api.module.HTModuleType
+import io.github.hiiragi283.api.property.HTPropertyHolder
 import net.minecraft.text.TranslatableText
 import net.minecraft.util.Identifier
 import java.util.concurrent.ConcurrentHashMap
 import java.util.function.Supplier
 
-class HTMaterialKey private constructor(val name: String) : Supplier<HTMaterial>, HTMaterialKeyable {
+class HTMaterialKey private constructor(val name: String) : Supplier<HTPropertyHolder> {
     companion object {
         private val INSTANCES: MutableMap<String, HTMaterialKey> = ConcurrentHashMap()
 
@@ -29,19 +31,15 @@ class HTMaterialKey private constructor(val name: String) : Supplier<HTMaterial>
         check(validated) { "Material; $name is not registered!" }
     }
 
-    private var cache: HTMaterial? = null
+    private var cache: HTPropertyHolder? = null
 
-    override fun get(): HTMaterial {
+    override fun get(): HTPropertyHolder {
         checkValidation()
         if (cache == null) {
             cache = HTApiHolder.Material.apiInstance.materialRegistry[this]
         }
-        return checkNotNull(cache) { "Material; $name is not registered!" }
+        return cache.checkNotNull { "Material; $name is not registered!" }
     }
-
-    //    HTMaterialKeyable    //
-
-    override val materialKey: HTMaterialKey = this
 
     //    Identifier    //
 

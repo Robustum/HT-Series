@@ -2,18 +2,23 @@ package io.github.hiiragi283.material.common
 
 import com.google.common.collect.HashBasedTable
 import com.google.common.collect.Table
-import io.github.hiiragi283.api.event.HTMaterialEvent
 import io.github.hiiragi283.api.event.HTTagEvents
 import io.github.hiiragi283.api.extension.*
+import io.github.hiiragi283.api.fluid.HTVirtualFluid
 import io.github.hiiragi283.api.fluid.phase.HTFluidPhase
 import io.github.hiiragi283.api.fluid.phase.HTMaterialFluidManager
 import io.github.hiiragi283.api.fluid.phase.HTPhasedMaterial
+import io.github.hiiragi283.api.item.HTTextSuppliedBlockItem
+import io.github.hiiragi283.api.item.HTTextSuppliedItem
 import io.github.hiiragi283.api.item.shape.*
-import io.github.hiiragi283.api.material.HTMaterial
 import io.github.hiiragi283.api.material.HTMaterialKey
 import io.github.hiiragi283.api.material.HTMaterialRegistry
+import io.github.hiiragi283.api.material.content.HTMaterialContentGroup
+import io.github.hiiragi283.api.material.content.HTMaterialContentManager
+import io.github.hiiragi283.api.material.content.HTMaterialStorage
 import io.github.hiiragi283.api.material.property.HTMaterialProperties
 import io.github.hiiragi283.api.module.*
+import io.github.hiiragi283.api.property.HTPropertyHolder
 import io.github.hiiragi283.api.recipe.HTGrindingRecipe
 import io.github.hiiragi283.api.resource.HTRuntimeDataRegistry
 import io.github.hiiragi283.api.resource.recipe.HTShapedRecipeBuilder
@@ -26,11 +31,13 @@ import net.fabricmc.api.DedicatedServerModInitializer
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder
 import net.fabricmc.fabric.api.event.player.UseBlockCallback
+import net.fabricmc.fabric.api.item.v1.FabricItemSettings
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry
 import net.minecraft.block.Block
 import net.minecraft.block.Blocks
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.fluid.Fluid
+import net.minecraft.fluid.Fluids
 import net.minecraft.inventory.SimpleInventory
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
@@ -53,6 +60,8 @@ import kotlin.jvm.optionals.getOrNull
 
 object HTMaterials : ModInitializer, DedicatedServerModInitializer {
     lateinit var screenHandlerType: ScreenHandlerType<MaterialDictionaryScreenHandler>
+    private val settings by lazy { FabricItemSettings().group(HTApiHolder.Material.apiInstance.itemGroup) }
+
     //    Init    //
 
     override fun onInitialize() {
@@ -68,40 +77,26 @@ object HTMaterials : ModInitializer, DedicatedServerModInitializer {
         registerShapes()
         registerMaterials()
 
+        val materialApi = HTApiHolder.Material.apiInstance
+        HTMaterialsAPIImpl.materialContentManager = HTMaterialContentManager(
+            HTMaterialContentGroup.buildAndRegister(
+                Blocks.AIR,
+                Registry.BLOCK,
+                { key, shapeKey -> shapeKey.get().getId(key) },
+            ) {
+                registerMaterialStorageBlocks(materialApi, this)
+                registerMaterialOres(materialApi, this)
+            },
+            registerMaterialFluids(materialApi),
+            registerMaterialItems(materialApi),
+        )
+
         registerResources()
 
         reloadFluidMaterialManager(false)
         reloadItemMaterialManager(false)
 
         HTLogger.log { it.info("HT Materials Initialized!") }
-    }
-
-    private fun registerShapes() {
-        val map: MutableMap<HTShapeKey, HTShape> = mutableMapOf()
-        val builder = HTShapeRegistry.Builder(map)
-        HTPluginHolder.Material.forEach { it.registerShape(builder) }
-        HTMaterialsAPIImpl.shapeRegistry = HTShapeRegistry(map)
-        HTLogger.log { it.info("HTShapeRegistry initialized!") }
-    }
-
-    private fun registerMaterials() {
-        val materialMap: MutableMap<HTMaterialKey, MutableMap<TypedIdentifier<*>, Any>> = mutableMapOf()
-        val builder = HTMaterialRegistry.Builder(materialMap)
-        HTPluginHolder.Material.forEach { it.registerMaterial(builder) }
-
-        HTMaterialsAPIImpl.materialRegistry = HTMaterialRegistry.create(materialMap)
-        HTLogger.log { it.info("HTMaterialRegistry initialized!") }
-
-        HTMaterialsAPIImpl.materialRegistry.blocks.forEach { (material: HTMaterial, shape: HTShape, block: Block) ->
-            Registry.register(Registry.BLOCK, shape.getId(material), block)
-        }
-        HTMaterialsAPIImpl.materialRegistry.fluids.forEach { (material: HTMaterial, phase: HTFluidPhase, fluid: Fluid) ->
-            Registry.register(Registry.FLUID, phase.getId(material), fluid)
-        }
-        HTMaterialsAPIImpl.materialRegistry.items.forEach { (material: HTMaterial, shape: HTShape, item: Item) ->
-            Registry.register(Registry.ITEM, shape.getId(material), item)
-        }
-        HTLogger.log { it.info("Material Contents registered!") }
     }
 
     private fun initEntries() {
@@ -152,6 +147,81 @@ object HTMaterials : ModInitializer, DedicatedServerModInitializer {
         )
     }
 
+    private fun registerShapes() {
+        HTMaterialsAPIImpl.shapeRegistry = HTShapeRegistry.build {
+            HTPluginHolder.Material.forEach { it.registerShape(this) }
+        }
+        HTLogger.log { it.info("HTShapeRegistry initialized!") }
+    }
+
+    private fun registerMaterials() {
+        HTMaterialsAPIImpl.materialRegistry = HTMaterialRegistry.build {
+            HTPluginHolder.Material.forEach { it.registerMaterial(this) }
+        }
+        HTLogger.log { it.info("HTMaterialRegistry initialized!") }
+    }
+
+    private fun registerMaterialStorageBlocks(materialApi: HTMaterialsAPI, builder: HTMaterialContentGroup.Builder<HTShapeKey, Block>) {
+        materialApi.materialRegistry.forEach { materialKey, material ->
+            material[HTMaterialProperties.STORAGE]?.let { property: HTMaterialStorage ->
+                val block = property.block
+                val shapeKey = HTShapeKeys.BLOCK
+                val shape = shapeKey.get()
+                // Register Block
+                builder.add(
+                    materialKey,
+                    shapeKey,
+                    block,
+                )
+                // Register BlockItem
+                Registry.register(
+                    Registry.ITEM,
+                    shape.getId(materialKey),
+                    HTTextSuppliedBlockItem(block, settings) { shapeKey.getTranslatedText(materialKey) },
+                )
+            }
+        }
+    }
+
+    private fun registerMaterialOres(materialApi: HTMaterialsAPI, builder: HTMaterialContentGroup.Builder<HTShapeKey, Block>) {
+    }
+
+    private fun registerMaterialFluids(materialApi: HTMaterialsAPI): HTMaterialContentGroup<HTFluidPhase, Fluid> =
+        HTMaterialContentGroup.buildAndRegister(
+            Fluids.EMPTY,
+            Registry.FLUID,
+            { key, phase -> phase.getId(key) },
+        ) {
+            materialApi.forEachPhasedMaterial { part: HTPhasedMaterial ->
+                val (materialKey: HTMaterialKey, phase: HTFluidPhase, material: HTPropertyHolder) = part
+                if (phase.canGenerateFluid(materialKey, material)) {
+                    add(
+                        materialKey,
+                        phase,
+                        HTVirtualFluid(),
+                    )
+                }
+            }
+        }
+
+    private fun registerMaterialItems(materialApi: HTMaterialsAPI): HTMaterialContentGroup<HTShapeKey, Item> =
+        HTMaterialContentGroup.buildAndRegister(
+            Items.AIR,
+            Registry.ITEM,
+            { key, shapeKey -> shapeKey.get().getId(key) },
+        ) {
+            materialApi.forEachShapedMaterial { part: HTShapedMaterial ->
+                val (materialKey: HTMaterialKey, shapeKey: HTShapeKey, material: HTPropertyHolder, shape: HTShape) = part
+                if (shape.canGenerateItem(materialKey, material)) {
+                    add(
+                        materialKey,
+                        shapeKey,
+                        HTTextSuppliedItem(settings) { shapeKey.getTranslatedText(materialKey) },
+                    )
+                }
+            }
+        }
+
     private fun registerResources() {
         // Loot Tables
         HTRuntimeDataRegistry.addBlockLootTable(HTMaterialLibraryBlock)
@@ -191,20 +261,20 @@ object HTMaterials : ModInitializer, DedicatedServerModInitializer {
 
         HTTagEvents.ITEM.register { handler ->
             HTApiHolder.Material.apiInstance.run {
-                forEachDirectPart { (material: HTMaterial, shape: HTShape) ->
-                    handler.getOrCreate(material, shape)
+                forEachShapedMaterial { (materialKey: HTMaterialKey, shapeKey: HTShapeKey) ->
+                    handler.getOrCreate(materialKey, shapeKey.get())
                 }
-                materialItemManager.forEach { item: Item, shapedMaterial: HTShapedMaterial.Lazy ->
+                materialItemManager.forEach { item: Item, shapedMaterial: HTShapedMaterial ->
                     handler.add(shapedMaterial.materialKey, shapedMaterial.shape, item)
                 }
             }
         }
 
-        HTMaterialEvent.MODIFY_BUILDER.register { builder ->
+        /*HTMaterialEvent.MODIFY_BUILDER.register { builder ->
             if (HTMaterialProperties.blockContent(HTShapeKeys.BLOCK) !in builder) {
                 builder.removeProperty(HTMaterialProperties.STORAGE_BLOCK_RECIPE)
             }
-        }
+        }*/
 
         UseBlockCallback.EVENT.register { player: PlayerEntity, world: World, hand: Hand, result: BlockHitResult ->
             if (hand == Hand.OFF_HAND) return@register ActionResult.PASS
@@ -261,14 +331,14 @@ object HTMaterials : ModInitializer, DedicatedServerModInitializer {
     private fun reloadFluidMaterialManager(isClient: Boolean) {
         if (isClient) return
         // registration
-        val entryMap: MutableMap<HTMaterialFluidManager.Entry, HTPhasedMaterial.Lazy> = mutableMapOf()
+        val entryMap: MutableMap<HTMaterialFluidManager.Entry, HTPhasedMaterial> = mutableMapOf()
         val builder = HTMaterialFluidManager.Builder(entryMap)
         HTPluginHolder.Material.forEach { it.bindMaterialWithFluid(builder) }
         // reload
-        val fluidToPhased: MutableMap<Fluid, HTPhasedMaterial.Lazy> = mutableMapOf()
+        val fluidToPhased: MutableMap<Fluid, HTPhasedMaterial> = mutableMapOf()
         val phasedToFluids: Table<HTMaterialKey, HTFluidPhase, MutableSet<Fluid>> = HashBasedTable.create()
         val unificationBlacklist: MutableSet<Fluid> = hashSetOf()
-        entryMap.forEach { (entry: HTMaterialFluidManager.Entry, shapedMaterial: HTPhasedMaterial.Lazy) ->
+        entryMap.forEach { (entry: HTMaterialFluidManager.Entry, shapedMaterial: HTPhasedMaterial) ->
             val (materialKey: HTMaterialKey, phase: HTFluidPhase) = shapedMaterial
             entry.values.forEach { fluid: Fluid ->
                 fluidToPhased[fluid] = shapedMaterial
@@ -290,14 +360,14 @@ object HTMaterials : ModInitializer, DedicatedServerModInitializer {
     private fun reloadItemMaterialManager(isClient: Boolean) {
         if (isClient) return
         // registration
-        val entryMap: MutableMap<HTMaterialItemManager.Entry, HTShapedMaterial.Lazy> = mutableMapOf()
+        val entryMap: MutableMap<HTMaterialItemManager.Entry, HTShapedMaterial> = mutableMapOf()
         val builder = HTMaterialItemManager.Builder(entryMap)
         HTPluginHolder.Material.forEach { it.bindMaterialWithItem(builder) }
         // reload
-        val itemToShaped: MutableMap<Item, HTShapedMaterial.Lazy> = mutableMapOf()
+        val itemToShaped: MutableMap<Item, HTShapedMaterial> = mutableMapOf()
         val shapedToItems: Table<HTMaterialKey, HTShapeKey, MutableSet<Item>> = HashBasedTable.create()
         val unificationBlacklist: MutableSet<Item> = hashSetOf()
-        entryMap.forEach { (entry: HTMaterialItemManager.Entry, shapedMaterial: HTShapedMaterial.Lazy) ->
+        entryMap.forEach { (entry: HTMaterialItemManager.Entry, shapedMaterial: HTShapedMaterial) ->
             val (materialKey: HTMaterialKey, shapeKey: HTShapeKey) = shapedMaterial
             entry.values.forEach { item: Item ->
                 itemToShaped[item] = shapedMaterial

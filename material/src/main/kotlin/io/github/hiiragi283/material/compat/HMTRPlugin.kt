@@ -33,7 +33,7 @@ object HMTRPlugin : HTPlugin.Material {
     val SMALL_DUST = HTShapeKey.of("small_dust")
 
     override fun registerShape(builder: HTShapeRegistry.Builder) {
-        builder.add(SMALL_DUST)
+        builder.createItemShape(SMALL_DUST)
     }
 
     override fun bindMaterialWithFluid(builder: HTMaterialFluidManager.Builder) {
@@ -69,7 +69,7 @@ object HMTRPlugin : HTPlugin.Material {
     }
 
     override fun afterMaterialRegistration(instance: HTMaterialsAPI, isClient: Boolean) {
-        instance.materialRegistry.forEach { (key: HTMaterialKey, _) ->
+        instance.materialRegistry.forEach { key: HTMaterialKey, _ ->
             val dustItem: Item = instance.materialItemManager.getOrNull(key, HTShapeKeys.DUST) ?: return@forEach
             // 1x Chunk -> 2x Dust with Grinder
             HTRuntimeDataRegistry.addRecipe(

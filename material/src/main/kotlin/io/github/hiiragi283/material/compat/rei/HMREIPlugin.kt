@@ -25,7 +25,7 @@ object HMREIPlugin : REIPluginV0 {
     override fun getPluginIdentifier(): Identifier = HTModuleType.MATERIAL.id("plugin")
 
     override fun registerEntries(entryRegistry: EntryRegistry) {
-        HTApiHolder.Material.apiInstance.materialRegistry.values
+        HTApiHolder.Material.apiInstance.materialRegistry.keys
             .map(::HTMaterialEntryStack)
             .forEach(entryRegistry::registerEntry)
     }
@@ -36,7 +36,7 @@ object HMREIPlugin : REIPluginV0 {
     }
 
     override fun registerRecipeDisplays(recipeHelper: RecipeHelper) {
-        HTApiHolder.Material.apiInstance.materialRegistry.values
+        HTApiHolder.Material.apiInstance.materialRegistry.keys
             .map(::HTMaterialDisplay)
             .filterNot { it.entries.isEmpty() }
             .forEach(recipeHelper::registerDisplay)

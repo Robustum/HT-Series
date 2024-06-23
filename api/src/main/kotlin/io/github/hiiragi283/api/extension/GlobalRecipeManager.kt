@@ -17,9 +17,7 @@ object GlobalRecipeManager {
     fun get(type: EnvType): RecipeManager = when (type) {
         EnvType.CLIENT -> client
         EnvType.SERVER -> server
-    }.let {
-        checkNotNull(it) { "GlobalRecipeManager on ${type.name} side is not initialized!" }
-    }
+    }.checkNotNull { "GlobalRecipeManager on ${type.name} side is not initialized!" }
 
     init {
         ServerWorldEvents.LOAD.register(GlobalRecipeManager::onWorldLoaded)
@@ -33,7 +31,7 @@ object GlobalRecipeManager {
 
     @Suppress("UNUSED_PARAMETER")
     private fun onLoginStart(handler: ClientLoginNetworkHandler, client: MinecraftClient) {
-        GlobalRecipeManager.client = checkNotNull(client.networkHandler?.recipeManager) {
+        GlobalRecipeManager.client = client.networkHandler?.recipeManager.checkNotNull {
             "Could not find client player!"
         }
     }
