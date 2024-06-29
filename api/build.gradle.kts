@@ -1,7 +1,7 @@
 base.archivesName = "HT-API-${rootProject.version}"
 
 loom {
-    // accessWidenerPath = file("src/main/resources/ht_materials.accesswidener")
+    accessWidenerPath = file("src/main/resources/ht_api.accesswidener")
     runs {
         getByName("client") {
             programArg("--username=Developer")

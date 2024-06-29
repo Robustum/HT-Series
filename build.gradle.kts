@@ -3,7 +3,7 @@ import org.jlleitschuh.gradle.ktlint.reporter.ReporterType
 
 plugins {
     kotlin("jvm").version("2.0.0")
-    id("fabric-loom").version("1.6-SNAPSHOT").apply(false)
+    id("fabric-loom").version("1.7-SNAPSHOT").apply(false)
     id("org.jlleitschuh.gradle.ktlint").version("12.1.0")
 }
 
@@ -72,14 +72,14 @@ subprojects {
 
     java {
         withSourcesJar()
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     kotlin {
-        jvmToolchain(8)
+        jvmToolchain(21)
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_1_8)
+            jvmTarget.set(JvmTarget.JVM_21)
             freeCompilerArgs.add("-Xjvm-default=all")
         }
     }
