@@ -8,8 +8,10 @@
     "ItemMixin",
     "LootManagerMixin",
     "RecipeManagerMixin",
+    "RegistryKeyAccessor",
     "ResourcePackManagerMixin",
     "ServerResourceManagerMixin",
+    "TagBuilderAccessor",
     "TagGroupLoaderMixin"
   ],
   "client": [

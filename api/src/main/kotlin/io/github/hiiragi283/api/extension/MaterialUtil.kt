@@ -59,7 +59,7 @@ fun validateFormula(formula: String?): String? = formula?.takeIf { it.isNotEmpty
 
 //    Molar    //
 
-fun calculateMolar(molars: Iterable<Double>) = calculateMolar(molars.associateWith { 1 })
+fun calculateMolar(molars: Iterable<Double>): Double = calculateMolar(molars.associateWith { 1 })
 
 fun calculateMolar(map: Map<Double, Int>): Double = map.map { (molar: Double, weight: Int) -> molar * weight }.sum()
 

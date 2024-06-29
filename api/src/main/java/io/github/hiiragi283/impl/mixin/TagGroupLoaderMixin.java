@@ -1,6 +1,6 @@
 package io.github.hiiragi283.impl.mixin;
 
-import io.github.hiiragi283.impl.HTTagGroupLoaderMixin;
+import io.github.hiiragi283.impl.HTJSonDataLoaderMixin;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.tag.Tag;
 import net.minecraft.tag.TagGroupLoader;
@@ -28,7 +28,7 @@ public abstract class TagGroupLoaderMixin<T> {
 
     @Inject(method = "prepareReload", at = @At("HEAD"), cancellable = true)
     private void ht_materials$prepareReload(ResourceManager manager, Executor prepareExecutor, CallbackInfoReturnable<CompletableFuture<Map<Identifier, Tag.Builder>>> cir) {
-        cir.setReturnValue(CompletableFuture.supplyAsync(() -> HTTagGroupLoaderMixin.loadTagMap(manager, dataType), prepareExecutor));
+        cir.setReturnValue(CompletableFuture.supplyAsync(() -> HTJSonDataLoaderMixin.loadTagMap(manager, dataType), prepareExecutor));
     }
 
     @Redirect(method = "method_26797", at = @At(value = "INVOKE", target = "Ljava/util/stream/Collectors;joining(Ljava/lang/CharSequence;)Ljava/util/stream/Collector;"))

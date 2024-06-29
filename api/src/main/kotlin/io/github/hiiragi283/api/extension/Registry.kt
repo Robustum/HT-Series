@@ -1,12 +1,13 @@
 package io.github.hiiragi283.api.extension
 
+import io.github.hiiragi283.impl.mixin.RegistryKeyAccessor
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
 import net.minecraft.util.registry.RegistryKey
 import kotlin.jvm.optionals.getOrNull
 
-@Suppress("UNCHECKED_CAST")
-fun <T : Any> RegistryKey<T>.registry(): Registry<T>? = Registry.REGISTRIES.firstOrNull { this.isOf(it.key) } as? Registry<T>
+val <T : Any> RegistryKey<T>.registry: Identifier
+    get() = (this as RegistryKeyAccessor).registry
 
 fun <T : Any, U : T> Registry<T>.register(registryKey: RegistryKey<T>, value: U): U = Registry.register(this, registryKey.value, value)
 

@@ -6,23 +6,13 @@ import net.minecraft.block.entity.BlockEntity
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
-fun <A, C> BlockApiLookup<A, C>.findOrDefault(
+fun <A : Any, C : Any> BlockApiLookup<A, C>.tryFind(
     world: World,
     pos: BlockPos,
     context: C,
-    defaultValue: A,
     state: BlockState? = world.getBlockState(pos),
     blockEntity: BlockEntity? = world.getBlockEntity(pos),
-): A = find(world, pos, state, blockEntity, context) ?: defaultValue
+): Result<A?> = runCatchAndLog { find(world, pos, state, blockEntity, context) }
 
-fun <A, C> BlockApiLookup<A, C>.findOrElse(
-    world: World,
-    pos: BlockPos,
-    context: C,
-    defaultValue: () -> A,
-    state: BlockState? = world.getBlockState(pos),
-    blockEntity: BlockEntity? = world.getBlockEntity(pos),
-): A = find(world, pos, state, blockEntity, context) ?: defaultValue()
-
-fun <A, C> BlockApiLookup<A, C>.findFrom(world: World, pos: BlockPos, context: C): A? =
+fun <A : Any, C : Any> BlockApiLookup<A, C>.findFrom(world: World, pos: BlockPos, context: C): A? =
     find(world, pos, world.getBlockState(pos), world.getBlockEntity(pos), context)
