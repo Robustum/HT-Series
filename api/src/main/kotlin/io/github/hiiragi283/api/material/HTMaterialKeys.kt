@@ -113,6 +113,9 @@ object HTMaterialKeys {
     val BRICK = HTMaterialKey.of("brick")
 
     @JvmField
+    val NETHER_BRICK = HTMaterialKey.of("nether_brick")
+
+    @JvmField
     val CLAY = HTMaterialKey.of("clay")
 
     @JvmField
@@ -159,14 +162,14 @@ object HTMaterialKeys {
     @JvmField
     val ANDESITE = HTMaterialKey.of("andesite")
 
-    @JvmField
+    /*@JvmField
     val DEEPSLATE = HTMaterialKey.of("deepslate")
 
     @JvmField
     val CALCITE = HTMaterialKey.of("calcite")
 
     @JvmField
-    val TUFF = HTMaterialKey.of("tuff")
+    val TUFF = HTMaterialKey.of("tuff")*/
 
     @JvmField
     val OBSIDIAN = HTMaterialKey.of("obsidian")
@@ -221,7 +224,7 @@ object HTMaterialKeys {
     val CALCIUM = HTMaterialKey.of("calcium")
 
     @JvmField
-    val MARBLE = HTMaterialKey.of("marble")
+    val CALCIUM_CARBONATE = HTMaterialKey.of("calcium_carbonate")
 
     // Ti
     @JvmField
@@ -342,9 +345,6 @@ object HTMaterialKeys {
 
     @JvmField
     val GLOWSTONE = HTMaterialKey.of("glowstone")
-
-    @JvmField
-    val NETHER_BRICK = HTMaterialKey.of("nether_brick")
 
     @JvmField
     val NETHERITE = HTMaterialKey.of("netherite")

@@ -1,11 +1,7 @@
 package io.github.hiiragi283.api.material
 
 import io.github.hiiragi283.api.event.HTMaterialEvent
-import io.github.hiiragi283.api.extension.HTColor
-import io.github.hiiragi283.api.extension.TypedIdentifier
-import io.github.hiiragi283.api.extension.singleBlockStateFunction
-import io.github.hiiragi283.api.extension.validateFormula
-import io.github.hiiragi283.api.extension.validateMolar
+import io.github.hiiragi283.api.extension.*
 import io.github.hiiragi283.api.fluid.phase.HTFluidPhase
 import io.github.hiiragi283.api.item.shape.HTShapeKey
 import io.github.hiiragi283.api.item.shape.HTShapeKeys
@@ -16,7 +12,6 @@ import io.github.hiiragi283.api.material.property.HTMaterialFlags
 import io.github.hiiragi283.api.material.property.HTMaterialProperties
 import io.github.hiiragi283.api.material.type.HTBlockProperty
 import io.github.hiiragi283.api.material.type.HTMaterialType
-import io.github.hiiragi283.api.module.HTModuleType
 import io.github.hiiragi283.api.property.HTPropertyHolder
 import net.minecraft.util.Identifier
 import java.awt.Color
@@ -25,11 +20,7 @@ class HTMaterialBuilder(
     private val materialKey: HTMaterialKey,
     private val materialType: HTMaterialType,
 ) : HTPropertyHolder.Mutable {
-    companion object {
-        private val COMPOSITION: TypedIdentifier<HTMaterialComposition> =
-            TypedIdentifier.of(HTModuleType.API.id("composition"))
-    }
-
+    private var composition: HTMaterialComposition? = null
     private val properties: MutableMap<TypedIdentifier<*>, Any> = mutableMapOf()
     private val blockSet: MutableSet<HTShapeKey> = HashSet(materialType.blockSet)
     private val fluidSet: MutableSet<HTFluidPhase> = HashSet(materialType.fluidSet)
@@ -44,6 +35,15 @@ class HTMaterialBuilder(
         else -> null
     }
 
+    private fun initComposition(composition: HTMaterialComposition?) {
+        composition?.let {
+            if (HTMaterialProperties.COLOR !in this) color(it.color)
+            if (HTMaterialProperties.FORMULA !in this) formula(it.formula)
+            if (HTMaterialProperties.MOLAR !in this) molar(it.molar)
+            addProperty(HTMaterialProperties.COMPONENT, it.componentMap)
+        }
+    }
+
     internal fun build(): HTPropertyHolder = HTPropertyHolder.create(properties) {
         // Event
         HTMaterialEvent.MODIFY_BUILDER.invoker().onBuilding(this@HTMaterialBuilder)
@@ -53,6 +53,7 @@ class HTMaterialBuilder(
         addProperty(HTMaterialProperties.BLOCK_SET, blockSet)
         addProperty(HTMaterialProperties.FLUID_SET, fluidSet)
         addProperty(HTMaterialProperties.ITEM_SET, itemSet)
+        initComposition(composition)
         // Validate basic property
         if (getOrDefault(HTMaterialProperties.COLOR, HTColor.WHITE) == HTColor.WHITE) {
             remove(HTMaterialProperties.COLOR)
@@ -99,19 +100,15 @@ class HTMaterialBuilder(
 
     //    Property - Composition    //
 
-    internal var composition: HTMaterialComposition? = get(COMPOSITION)
-
     fun mixture(vararg elements: HTElement) = composition(HTMaterialComposition.mixture(*elements))
 
     fun molecular(vararg pairs: Pair<HTElement, Int>) = composition(HTMaterialComposition.molecular(*pairs))
 
     fun polymer(vararg pairs: Pair<HTElement, Int>) = composition(HTMaterialComposition.polymer(*pairs))
 
-    fun composition(composition: HTMaterialComposition) = this
-        .color(composition.color)
-        .formula(composition.formula)
-        .molar(composition.molar)
-        .addProperty(HTMaterialProperties.COMPONENT, composition.componentMap)
+    fun composition(composition: HTMaterialComposition) = apply {
+        this.composition = composition
+    }
 
     fun color(color: Color) = addProperty(HTMaterialProperties.COLOR, color)
 
@@ -148,14 +145,14 @@ class HTMaterialBuilder(
         check(materialType is HTBlockProperty) {
             "Could not register with $materialKey because material type $materialType is not implementing HTBlockProperty!"
         }
-        return addProperty(
-            HTMaterialProperties.STORAGE,
-            HTMaterialStorage.createNine(
-                materialKey,
-                materialType,
-                miningLevel,
-            ),
+        val blockProperty: HTMaterialStorage = HTMaterialStorage.createNine(
+            materialKey,
+            materialType,
+            miningLevel,
         )
+        return addProperty(HTMaterialProperties.STORAGE, blockProperty)
+            .addProperty(HTMaterialProperties.blockState(HTShapeKeys.BLOCK), blockProperty.blockStateFunction)
+            .addProperty(HTMaterialProperties.itemBlockModel(HTShapeKeys.BLOCK), blockProperty.itemModelFunction)
     }
 
     fun addFluid(phase: HTFluidPhase) = apply { fluidSet.add(phase) }

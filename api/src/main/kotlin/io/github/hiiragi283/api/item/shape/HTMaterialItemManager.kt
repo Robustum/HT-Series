@@ -5,7 +5,7 @@ import com.google.common.collect.Table
 import io.github.hiiragi283.api.extension.RegistryObject
 import io.github.hiiragi283.api.extension.getRegistryObject
 import io.github.hiiragi283.api.extension.nonAir
-import io.github.hiiragi283.api.extension.safeValues
+import io.github.hiiragi283.api.extension.tryGetValues
 import io.github.hiiragi283.api.material.HTMaterialKey
 import io.github.hiiragi283.api.module.HTModuleType
 import net.minecraft.item.Item
@@ -127,7 +127,7 @@ class HTMaterialItemManager(
 
         data class TagEntry(val tag: Tag<Item>, override val unification: Boolean) : Entry {
             override val values: List<Item>
-                get() = tag.safeValues()
+                get() = tag.tryGetValues()
         }
     }
 }

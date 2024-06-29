@@ -1,5 +1,6 @@
 package io.github.hiiragi283.api.item.shape
 
+import io.github.hiiragi283.api.extension.runCatchAndLog
 import io.github.hiiragi283.api.material.HTMaterialKey
 import io.github.hiiragi283.api.property.HTPropertyHolder
 
@@ -10,10 +11,10 @@ data class HTShapedMaterial(val materialKey: HTMaterialKey, val shapeKey: HTShap
         get() = shapeKey.get()
 
     val materialOrNull: HTPropertyHolder?
-        get() = runCatching { material }.getOrNull()
+        get() = runCatchAndLog { material }.getOrNull()
 
     val shapeOrNull: HTShape?
-        get() = runCatching { shape }.getOrNull()
+        get() = runCatchAndLog { shape }.getOrNull()
 
     fun checkValidation() {
         materialKey.checkValidation()

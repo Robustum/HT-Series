@@ -1,5 +1,6 @@
 package io.github.hiiragi283.api.fluid.phase
 
+import io.github.hiiragi283.api.extension.runCatchAndLog
 import io.github.hiiragi283.api.material.HTMaterialKey
 import io.github.hiiragi283.api.property.HTPropertyHolder
 
@@ -11,7 +12,7 @@ data class HTPhasedMaterial(
         get() = materialKey.get()
 
     val materialOrNull: HTPropertyHolder?
-        get() = runCatching { materialOrNull }.getOrNull()
+        get() = runCatchAndLog { material }.getOrNull()
 
     fun checkValidation() {
         materialKey.checkValidation()

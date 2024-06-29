@@ -67,6 +67,7 @@ internal object HMDefaultMaterials : HTPlugin.Material {
             .addBlacklist(
                 HTMaterialKeys.DIAMOND,
                 HTMaterialKeys.EMERALD,
+                HTMaterialKeys.ENDER_PEARL,
                 HTMaterialKeys.FLINT,
                 HTMaterialKeys.LAPIS,
                 HTMaterialKeys.QUARTZ,
@@ -176,6 +177,7 @@ internal object HMDefaultMaterials : HTPlugin.Material {
         // Al
         builder.createMetal(HTMaterialKeys.ALUMINUM)
             .molecular(HTElements.Al to 1)
+            .add3x3StorageBlock()
         builder.createSolid(HTMaterialKeys.ALUMINA)
             .molecular(HTElements.Al2O3 to 1)
             .color(HTColor.WHITE)
@@ -185,18 +187,24 @@ internal object HMDefaultMaterials : HTPlugin.Material {
         builder.createSolid(HTMaterialKeys.BRICK)
             .mixture(HTElements.Al2O3)
             .color(averageColor(HTColor.DARK_RED to 2, HTColor.GOLD to 1, HTColor.DARK_GRAY to 2))
+        builder.createSolid(HTMaterialKeys.NETHER_BRICK)
+            .mixture(HTElements.Al2O3)
+            .color(averageColor(HTColor.BLACK to 4, HTColor.DARK_RED to 1, HTColor.WHITE to 1))
         builder.createSolid(HTMaterialKeys.CLAY)
             .mixture(HTElements.Al2O3)
             .color(Color(0xa4a8b8))
         builder.createGem(HTMaterialKeys.SAPPHIRE, HTMaterialType.Gem.RUBY)
             .molecular(HTElements.Al2O3 to 1)
             .color(HTColor.BLUE)
+            .add3x3StorageBlock(3)
         builder.createGem(HTMaterialKeys.RUBY, HTMaterialType.Gem.RUBY)
             .molecular(HTElements.Al2O3 to 1)
             .color(HTColor.RED)
+            .add3x3StorageBlock(3)
         // Si
         builder.createMetal(HTMaterialKeys.SILICON, false)
             .molecular(HTElements.Si to 1)
+            .add3x3StorageBlock(2)
         builder.createGem(HTMaterialKeys.FLINT, HTMaterialType.Gem.FLINT)
             .mixture(HTElements.SiO2)
             .color(averageColor(HTColor.BLACK, HTColor.GRAY))
@@ -208,7 +216,7 @@ internal object HMDefaultMaterials : HTPlugin.Material {
             .color(HTColor.BLUE)
         builder.createLiquid(HTMaterialKeys.LAVA)
             .mixture(HTElements.SiO2)
-            .color(averageColor(HTColor.DARK_RED, HTColor.GOLD))
+            .color(averageColor(HTColor.RED, HTColor.GOLD))
         builder.createGem(HTMaterialKeys.QUARTZ, HTMaterialType.Gem.QUARTZ)
             .molecular(HTElements.SiO2 to 1)
             .color(HTColor.WHITE)
@@ -217,18 +225,55 @@ internal object HMDefaultMaterials : HTPlugin.Material {
         builder.createSolid(HTMaterialKeys.SLAG)
             .mixture(HTElements.SiO2)
             .color(HTColor.DARK_GRAY)
+        // Si - Stone
+        builder.createStone(HTMaterialKeys.STONE)
+            .mixture(HTElements.SiO2)
+            .color(HTColor.DARK_GRAY)
+        builder.createStone(HTMaterialKeys.GRANITE)
+            .mixture(HTElements.SiO2)
+            .color(averageColor(HTColor.DARK_RED to 1, HTColor.GRAY to 4, HTColor.RED to 1))
+        builder.createStone(HTMaterialKeys.DIORITE)
+            .mixture(HTElements.SiO2)
+            .color(HTColor.GRAY)
+        builder.createStone(HTMaterialKeys.ANDESITE)
+            .mixture(HTElements.SiO2)
+            .color(averageColor(HTColor.DARK_GRAY to 7, HTColor.YELLOW to 1))
+        builder.createStone(HTMaterialKeys.OBSIDIAN)
+            .mixture(HTElements.SiO2)
+            .color(
+                averageColor(
+                    HTColor.BLACK to 4,
+                    HTColor.DARK_BLUE to 2,
+                    HTColor.DARK_RED to 1,
+                    HTColor.WHITE to 1,
+                ),
+            )
+        builder.createStone(HTMaterialKeys.NETHERRACK)
+            .mixture(HTElements.SiO2, HTElements.S, HTElements.P)
+            .color(averageColor(HTColor.BLACK to 4, HTColor.DARK_RED to 1, HTColor.RED to 3))
+        builder.createStone(HTMaterialKeys.BASALT)
+            .mixture(HTElements.SiO2)
+            .color(averageColor(HTColor.BLACK, HTColor.GRAY))
+        builder.createStone(HTMaterialKeys.END_STONE)
+            .mixture(HTElements.SiO2)
+            .color(averageColor(HTColor.YELLOW to 1, HTColor.WHITE to 3))
+        builder.createStone(HTMaterialKeys.BLACKSTONE)
+            .mixture(HTElements.SiO2)
+            .color(HTColor.BLACK)
         // P
         builder.createSolid(HTMaterialKeys.PHOSPHORUS)
             .molecular(HTElements.P to 1)
         // S
         builder.createGem(HTMaterialKeys.SULFUR, HTMaterialType.Gem.FLINT)
             .molecular(HTElements.S to 8)
+            .add3x3StorageBlock()
         builder.createGas(HTMaterialKeys.SULFUR_DIOXIDE)
             .molecular(HTElements.S to 1, HTElements.O to 2)
         builder.createGas(HTMaterialKeys.SULFUR_TRIOXIDE)
             .molecular(HTElements.S to 1, HTElements.O to 3)
         builder.createLiquid(HTMaterialKeys.SULFURIC_ACID)
             .molecular(HTElements.H to 2, HTElements.SO4 to 1)
+            .color(averageColor(HTColor.RED, HTColor.YELLOW))
         // Cl
         builder.createGas(HTMaterialKeys.CHLORINE)
             .molecular(HTElements.Cl to 2)
@@ -237,11 +282,28 @@ internal object HMDefaultMaterials : HTPlugin.Material {
         builder.createGem(HTMaterialKeys.SALT, HTMaterialType.Gem.FLINT)
             .molecular(HTElements.Na to 1, HTElements.Cl to 1)
             .color(HTColor.WHITE)
+            .add3x3StorageBlock()
         // Ar
 
         // K
+        builder.createMetal(HTMaterialKeys.POTASSIUM, false)
+            .molecular(HTElements.K to 1)
         // Ca
+        builder.createMetal(HTMaterialKeys.CALCIUM, false)
+            .molecular(HTElements.Ca to 1)
+        builder.createSolid(HTMaterialKeys.CALCIUM_CARBONATE)
+            .molecular(HTElements.Ca to 1, HTElements.CO3 to 1)
+            .color(HTColor.WHITE)
         // Ti
+        builder.createMetal(HTMaterialKeys.TITANIUM)
+            .molecular(HTElements.Ti to 1)
+            .add3x3StorageBlock(3)
+        builder.createGem(HTMaterialKeys.RUTILE, HTMaterialType.Gem.QUARTZ)
+            .molecular(HTElements.Ti to 1, HTElements.O to 2)
+            .color(averageColor(HTColor.GOLD, HTColor.YELLOW))
+            .add3x3StorageBlock(3)
+        builder.createLiquid(HTMaterialKeys.TITANIUM_TETRACHLORIDE)
+            .molecular(HTElements.Ti to 1, HTElements.Cl to 4)
         // Cr
         // Mn
         // Fe
@@ -256,20 +318,51 @@ internal object HMDefaultMaterials : HTPlugin.Material {
         // Co
         // Ni
         // Cu
+        builder.createMetal(HTMaterialKeys.COPPER)
+            .molecular(HTElements.Cu to 1)
+            .add3x3StorageBlock()
         // Zn
+        builder.createMetal(HTMaterialKeys.ZINC)
+            .molecular(HTElements.Zn to 1)
+            .add3x3StorageBlock()
+        builder.createMetal(HTMaterialKeys.BRASS)
+            .molecular(HTElements.Cu to 3, HTElements.Zn to 1)
+            .color(HTColor.GOLD)
+            .add3x3StorageBlock()
 
         // Ag
+        builder.createMetal(HTMaterialKeys.SILVER)
+            .molecular(HTElements.Ag to 1)
+            .add3x3StorageBlock(2)
         // Sn
+        builder.createMetal(HTMaterialKeys.TIN, false)
+            .molecular(HTElements.Sn to 1)
+            .add3x3StorageBlock()
+        builder.createMetal(HTMaterialKeys.BRONZE)
+            .molecular(HTElements.Cu to 3, HTElements.Sn to 1)
+            .add3x3StorageBlock()
 
         // W
         // Ir
         // Pt
         // Au
+        builder.createMetal(HTMaterialKeys.GOLD)
+            .molecular(HTElements.Au to 1)
         // Hg
         // Pb
 
         // U
         // Pu
+
+        // Other
+        builder.createGem(HTMaterialKeys.ENDER_PEARL, HTMaterialType.Gem.LAPIS)
+            .color(averageColor(HTColor.DARK_GREEN, HTColor.BLUE))
+        builder.createGem(HTMaterialKeys.GLOWSTONE, HTMaterialType.Gem.EMERALD)
+            .color(averageColor(HTColor.GOLD to 1, HTColor.YELLOW to 2))
+        builder.createGem(HTMaterialKeys.REDSTONE, HTMaterialType.Gem.EMERALD)
+            .color(HTColor.DARK_RED)
+        builder.createMetal(HTMaterialKeys.NETHERITE, false)
+            .molecular(HTElements.Nr to 1)
     }
 
     /*override fun registerMaterial(builder: HTMaterialRegistry.Builder) {

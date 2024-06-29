@@ -1,5 +1,6 @@
 package io.github.hiiragi283.api.material.type
 
+import io.github.hiiragi283.api.extension.lowerName
 import io.github.hiiragi283.api.extension.suffix
 import io.github.hiiragi283.api.fluid.phase.HTFluidPhase
 import io.github.hiiragi283.api.item.shape.HTShapeKey
@@ -75,8 +76,8 @@ sealed interface HTMaterialType {
 
         override val blockMaterial: Material = Material.GLASS
         override val soundGroup: BlockSoundGroup = BlockSoundGroup.GLASS
-        override val miningTool: Tag<Item>?
-            get() = FabricToolTags.PICKAXES
+        override val miningTool: Tag<Item>? by lazy { FabricToolTags.PICKAXES }
+        override val modelName: String = "gem"
     }
 
     enum class Metal(val isShiny: Boolean) : HTMaterialType, HTBlockProperty {
@@ -110,8 +111,11 @@ sealed interface HTMaterialType {
 
         override val blockMaterial: Material = Material.METAL
         override val soundGroup: BlockSoundGroup = BlockSoundGroup.METAL
-        override val miningTool: Tag<Item>?
-            get() = FabricToolTags.PICKAXES
+        override val miningTool: Tag<Item>? by lazy { FabricToolTags.PICKAXES }
+        override val modelName: String = when (isShiny) {
+            true -> "shiny"
+            false -> "dull"
+        }
 
         companion object {
             @JvmStatic
@@ -131,8 +135,8 @@ sealed interface HTMaterialType {
 
         override val blockMaterial: Material = Material.STONE
         override val soundGroup: BlockSoundGroup = BlockSoundGroup.STONE
-        override val miningTool: Tag<Item>?
-            get() = FabricToolTags.PICKAXES
+        override val miningTool: Tag<Item>? by lazy { FabricToolTags.PICKAXES }
+        override val modelName: String = "solid"
     }
 
     data object Wood : HTMaterialType {

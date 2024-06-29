@@ -14,9 +14,9 @@ import net.minecraft.client.color.block.BlockColorProvider
 import net.minecraft.client.color.item.ItemColorProvider
 import net.minecraft.client.render.RenderLayer
 import net.minecraft.data.client.model.BlockStateSupplier
+import net.minecraft.item.Item
 import net.minecraft.loot.LootTable
 import java.awt.Color
-import java.util.function.BiConsumer
 
 object HTMaterialProperties {
     //    Static    //
@@ -84,12 +84,16 @@ object HTMaterialProperties {
         TypedIdentifier.of(HTModuleType.API.id("block_loot/${shapeKey.name}"))
 
     @JvmStatic
-    fun blockModel(shapeKey: HTShapeKey): TypedIdentifier<BiConsumer<HTModelJsonBuilder, Block>> =
+    fun blockModel(shapeKey: HTShapeKey): TypedIdentifier<(HTModelJsonBuilder, Block) -> Unit> =
         TypedIdentifier.of(HTModuleType.API.id("block_model/${shapeKey.name}"))
 
     @JvmStatic
     fun blockState(shapeKey: HTShapeKey): TypedIdentifier<(Block) -> BlockStateSupplier> =
         TypedIdentifier.of(HTModuleType.API.id("blockstate/${shapeKey.name}"))
+
+    @JvmStatic
+    fun itemBlockModel(shapeKey: HTShapeKey): TypedIdentifier<(HTModelJsonBuilder, Item) -> Unit> =
+        TypedIdentifier.of(HTModuleType.API.id("item_block_model/${shapeKey.name}"))
 
     @JvmStatic
     fun itemColor(shapeKey: HTShapeKey): TypedIdentifier<ItemColorProvider> =

@@ -9,6 +9,7 @@ import io.github.hiiragi283.api.fluid.phase.HTFluidPhase
 import io.github.hiiragi283.api.item.shape.HTShapeKey
 import io.github.hiiragi283.api.material.HTMaterialKey
 import io.github.hiiragi283.api.material.HTMaterialTooltipContext
+import io.github.hiiragi283.api.material.content.HTMaterialContentManager
 import io.github.hiiragi283.api.material.property.HTMaterialProperties
 import io.github.hiiragi283.api.material.type.HTMaterialType
 import io.github.hiiragi283.api.module.HTApiHolder
@@ -43,6 +44,7 @@ import net.minecraft.client.item.TooltipContext
 import net.minecraft.data.client.model.*
 import net.minecraft.fluid.Fluid
 import net.minecraft.item.Item
+import net.minecraft.item.ItemConvertible
 import net.minecraft.item.ItemStack
 import net.minecraft.state.property.Properties
 import net.minecraft.tag.ItemTags
@@ -112,9 +114,21 @@ object HTMaterialsClient : ClientModInitializer {
         )
     }
 
+    private fun registerItemColor(material: HTPropertyHolder, shapeKey: HTShapeKey, itemConvertible: ItemConvertible) {
+        material[HTMaterialProperties.COLOR]?.rgb?.let { color ->
+            ColorProviderRegistry.ITEM.register(
+                material.getOrDefault(
+                    HTMaterialProperties.itemColor(shapeKey),
+                    ItemColorProvider { _, tintIndex -> if (tintIndex == 0) color else -1 },
+                ),
+                itemConvertible,
+            )
+        }
+    }
+
     @Suppress("UnstableApiUsage")
     private fun registerMaterialResources() {
-        val contentManager = HTApiHolder.Material.apiInstance.materialContentManager
+        val contentManager: HTMaterialContentManager = HTApiHolder.Material.apiInstance.materialContentManager
         // Block
         contentManager.blockGroup.forEach { key: HTMaterialKey, shapeKey: HTShapeKey, block: Block ->
             val material: HTPropertyHolder = key.get()
@@ -133,7 +147,12 @@ object HTMaterialsClient : ClientModInitializer {
                 .let { HTRuntimeClientPack.addBlockState(block, it) }
             // Block Model
             material[HTMaterialProperties.blockModel(shapeKey)]
-                ?.let { HTRuntimeClientPack.addBlockModel(block, it::accept) }
+                ?.let { HTRuntimeClientPack.addBlockModel(block, it) }
+            // ItemBlock Model
+            material[HTMaterialProperties.itemBlockModel(shapeKey)]
+                ?.let { HTRuntimeClientPack.addItemModel(block.asItem(), it) }
+            // ItemBlock Color
+            registerItemColor(material, shapeKey, block)
             // RenderLayer
             material[HTMaterialProperties.blockLayer(shapeKey)]
                 ?.let { BlockRenderLayerMap.INSTANCE.putBlock(block, it) }
@@ -157,17 +176,9 @@ object HTMaterialsClient : ClientModInitializer {
         }
         // Item
         contentManager.itemGroup.forEach { key: HTMaterialKey, shapeKey: HTShapeKey, item: Item ->
-            val material = key.get()
+            val material: HTPropertyHolder = key.get()
             // Color
-            material[HTMaterialProperties.COLOR]?.rgb?.let { color ->
-                ColorProviderRegistry.ITEM.register(
-                    material.getOrDefault(
-                        HTMaterialProperties.itemColor(shapeKey),
-                        ItemColorProvider { _, tintIndex -> if (tintIndex == 0) color else -1 },
-                    ),
-                    item,
-                )
-            }
+            registerItemColor(material, shapeKey, item)
             // Model
             HTRuntimeClientPack.addItemModel(item) { builder, _ -> buildItemModel(builder, key, shapeKey) }
         }

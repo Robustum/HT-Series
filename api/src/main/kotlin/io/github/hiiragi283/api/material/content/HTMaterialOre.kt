@@ -134,7 +134,7 @@ object HTMaterialOre {
                 .apiInstance
                 .materialContentManager
                 .blockGroup
-                .get(materialKey, shapeKey)
+                .getOrNull(materialKey, shapeKey)
                 ?.defaultState
                 .checkNotNull { "Could not find Ore Block ${HTShapedMaterial(materialKey, shapeKey)}!" }
             Feature.ORE.configure(

@@ -1,51 +1,48 @@
 package io.github.hiiragi283.api.material.content
 
+import io.github.hiiragi283.api.extension.singleBlockStateFunction
 import io.github.hiiragi283.api.item.shape.HTShapeKey
 import io.github.hiiragi283.api.item.shape.HTShapeKeys
 import io.github.hiiragi283.api.material.HTMaterialKey
 import io.github.hiiragi283.api.material.property.HTMaterialProperties
 import io.github.hiiragi283.api.material.type.HTBlockProperty
-import io.github.hiiragi283.api.material.type.HTMaterialType
 import io.github.hiiragi283.api.module.HTApiHolder
+import io.github.hiiragi283.api.module.HTModuleType
 import io.github.hiiragi283.api.property.HTPropertyHolder
+import io.github.hiiragi283.api.resource.HTModelJsonBuilder
 import io.github.hiiragi283.api.resource.recipe.HTShapedRecipeBuilder
 import io.github.hiiragi283.api.resource.recipe.HTShapelessRecipeBuilder
 import net.fabricmc.fabric.api.`object`.builder.v1.block.FabricBlockSettings
 import net.minecraft.block.Block
+import net.minecraft.data.client.model.BlockStateSupplier
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.recipe.Ingredient
 import net.minecraft.recipe.ShapedRecipe
 import net.minecraft.recipe.ShapelessRecipe
 import net.minecraft.text.MutableText
+import net.minecraft.util.Identifier
 
 class HTMaterialStorage private constructor(
     val materialKey: HTMaterialKey,
     val property: HTBlockProperty,
-    val modelName: String,
-    val miningLevel: Int,
     val count: Int,
+    miningLevel: Int,
 ) {
     companion object {
         @JvmStatic
-        fun createFour(materialKey: HTMaterialKey, type: HTBlockProperty, miningLevel: Int) =
-            HTMaterialStorage(materialKey, type, getModelName(type), miningLevel, 4)
+        fun createFour(materialKey: HTMaterialKey, type: HTBlockProperty, miningLevel: Int): HTMaterialStorage =
+            HTMaterialStorage(materialKey, type, 4, miningLevel)
 
         @JvmStatic
-        fun createNine(materialKey: HTMaterialKey, type: HTBlockProperty, miningLevel: Int) =
-            HTMaterialStorage(materialKey, type, getModelName(type), miningLevel, 9)
-
-        private fun getModelName(property: HTBlockProperty): String = when (property) {
-            is HTMaterialType.Gem -> "gem"
-            is HTMaterialType.Metal -> if (property.isShiny) "shiny" else "dull"
-            else -> "solid"
-        }
+        fun createNine(materialKey: HTMaterialKey, type: HTBlockProperty, miningLevel: Int): HTMaterialStorage =
+            HTMaterialStorage(materialKey, type, 9, miningLevel)
     }
 
     private val contentManager: HTMaterialContentManager by lazy { HTApiHolder.Material.apiInstance.materialContentManager }
     private val material: HTPropertyHolder by lazy { materialKey.get() }
 
-    private val settings = buildSettings(property, miningLevel)
+    private val settings: FabricBlockSettings = buildSettings(property, miningLevel)
     val block: Block = object : Block(settings) {
         override fun getName(): MutableText = asItem().name as MutableText
     }
@@ -54,7 +51,7 @@ class HTMaterialStorage private constructor(
         get() {
             val defaultShape: HTShapeKey =
                 material[HTMaterialProperties.DEFAULT_ITEM_SHAPE] ?: return null
-            val output: Item = contentManager.itemGroup.get(materialKey, defaultShape) ?: return null
+            val output: Item = contentManager.itemGroup.getOrNull(materialKey, defaultShape) ?: return null
             return HTShapelessRecipeBuilder()
                 .output { ItemStack(output, count) }
                 .inputs(1) {
@@ -76,6 +73,15 @@ class HTMaterialStorage private constructor(
                 .output { ItemStack(block) }
                 .build(HTShapeKeys.BLOCK.get().getId(materialKey))
         }
+
+    private val blockModelId: Identifier = HTModuleType.API.id("block/storage/${property.modelName}")
+
+    val blockStateFunction: (Block) -> BlockStateSupplier =
+        singleBlockStateFunction(blockModelId)
+
+    val itemModelFunction: (HTModelJsonBuilder, Item) -> Unit = { builder, _ ->
+        builder.parentId = blockModelId
+    }
 
     init {
         check(miningLevel >= 0) { "Mining level of storage block must be 0 or more!" }

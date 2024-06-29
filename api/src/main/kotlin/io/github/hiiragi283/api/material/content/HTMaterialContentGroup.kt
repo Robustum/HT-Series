@@ -2,6 +2,7 @@ package io.github.hiiragi283.api.material.content
 
 import com.google.common.collect.HashBasedTable
 import com.google.common.collect.Table
+import io.github.hiiragi283.api.extension.runCatchAndLog
 import io.github.hiiragi283.api.material.HTMaterialKey
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
@@ -34,11 +35,11 @@ class HTMaterialContentGroup<T : Any, U : Any> private constructor(
 
     fun contains(materialKey: HTMaterialKey, type: T): Boolean = table.contains(materialKey, type)
 
-    fun get(materialKey: HTMaterialKey, type: T): U? = table.get(materialKey, type)
+    fun getResult(materialKey: HTMaterialKey, type: T): Result<U> = runCatchAndLog { table.get(materialKey, type) }
 
-    fun getResult(materialKey: HTMaterialKey, type: T): Result<U> = runCatching { get(materialKey, type)!! }
+    fun getOrNull(materialKey: HTMaterialKey, type: T): U? = getResult(materialKey, type).getOrNull()
 
-    fun getOrDefault(materialKey: HTMaterialKey, type: T): U = get(materialKey, type) ?: defaultValue
+    fun getOrDefault(materialKey: HTMaterialKey, type: T): U = getOrNull(materialKey, type) ?: defaultValue
 
     fun forEach(action: (HTMaterialKey, T, U) -> Unit) {
         table.cellSet().forEach cell@{ cell ->

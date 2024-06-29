@@ -9,4 +9,5 @@ interface HTBlockProperty {
     val blockMaterial: Material
     val soundGroup: BlockSoundGroup
     val miningTool: Tag<Item>?
+    val modelName: String
 }

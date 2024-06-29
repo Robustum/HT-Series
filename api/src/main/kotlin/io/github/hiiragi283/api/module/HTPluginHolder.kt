@@ -2,14 +2,15 @@ package io.github.hiiragi283.api.module
 
 import io.github.hiiragi283.api.extension.getEntrypoints
 import io.github.hiiragi283.api.extension.isModLoaded
+import io.github.hiiragi283.api.extension.runCatchAndLog
 
 sealed class HTPluginHolder<T : HTPlugin>(type: HTModuleType, clazz: Class<T>) {
-    val plugins: Iterable<T> = getEntrypoints(type.pluginKey, clazz)
+    private val plugins: Iterable<T> = getEntrypoints(type.pluginKey, clazz)
         .filter { isModLoaded(it.modId) }
         .sortedWith(compareBy<T> { it.priority }.thenBy { it::class.java.canonicalName })
 
-    inline fun forEach(action: (T) -> Unit) {
-        plugins.forEach(action)
+    fun forEach(action: (T) -> Unit) {
+        plugins.forEach { runCatchAndLog { action(it) } }
     }
 
     data object Engineering : HTPluginHolder<HTPlugin.Material>(HTModuleType.ENGINEERING, HTPlugin.Material::class.java)

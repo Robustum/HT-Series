@@ -1,5 +1,6 @@
 package io.github.hiiragi283.api.module
 
+import io.github.hiiragi283.api.extension.runCatchAndLog
 import io.github.hiiragi283.api.fluid.phase.HTFluidPhase
 import io.github.hiiragi283.api.fluid.phase.HTMaterialFluidManager
 import io.github.hiiragi283.api.fluid.phase.HTPhasedMaterial
@@ -27,7 +28,7 @@ interface HTMaterialsAPI {
         materialRegistry.keys.forEach { materialKey ->
             HTFluidPhase.entries.map { phase ->
                 HTPhasedMaterial(materialKey, phase)
-            }.forEach(action)
+            }.forEach { runCatchAndLog { action(it) } }
         }
     }
 
@@ -35,7 +36,7 @@ interface HTMaterialsAPI {
         materialRegistry.keys.forEach { materialKey ->
             shapeRegistry.keys.map { shapeKey ->
                 HTShapedMaterial(materialKey, shapeKey)
-            }.forEach(action)
+            }.forEach { runCatchAndLog { action(it) } }
         }
     }
 

@@ -1,10 +1,6 @@
 package io.github.hiiragi283.material.impl
 
-import io.github.hiiragi283.api.extension.buildLootPool
-import io.github.hiiragi283.api.extension.buildLootTable
-import io.github.hiiragi283.api.extension.prefix
-import io.github.hiiragi283.api.extension.rolls
-import io.github.hiiragi283.api.extension.surviveExplosion
+import io.github.hiiragi283.api.extension.*
 import io.github.hiiragi283.api.fluid.phase.HTFluidPhase
 import io.github.hiiragi283.api.fluid.phase.HTMaterialFluidManager
 import io.github.hiiragi283.api.item.shape.HTMaterialItemManager
@@ -97,8 +93,8 @@ internal object HMDefaultPlugin : HTPlugin.Material {
                 }
             // If HTStorageBlockRecipe property exists
             material[HTMaterialProperties.STORAGE]?.let { property: HTMaterialStorage ->
-                registerBlockDecomposeRecipe(key, itemGroup, property.count)
-                registerBlockConstructRecipe(key, material, property)
+                property.constructRecipe?.let(HTRuntimeDataRegistry::addRecipe)
+                property.decomposeRecipe?.let(HTRuntimeDataRegistry::addRecipe)
             }
         }
         // Item Misc
@@ -116,7 +112,7 @@ internal object HMDefaultPlugin : HTPlugin.Material {
 
     // Ingot -> 9x Nuggets
     private fun registerIngotDecomposeRecipe(key: HTMaterialKey, itemGroup: HTMaterialContentGroup<HTShapeKey, Item>) {
-        itemGroup.get(key, HTShapeKeys.NUGGET)?.run {
+        itemGroup.getOrNull(key, HTShapeKeys.NUGGET)?.run {
             HTRuntimeDataRegistry.addRecipe(
                 HTShapelessRecipeBuilder()
                     .output { ItemStack(this, 9) }
@@ -130,7 +126,7 @@ internal object HMDefaultPlugin : HTPlugin.Material {
 
     // 9x Nuggets -> Ingot
     private fun registerIngotConstructRecipe(key: HTMaterialKey, itemGroup: HTMaterialContentGroup<HTShapeKey, Item>) {
-        itemGroup.get(key, HTShapeKeys.INGOT)?.run {
+        itemGroup.getOrNull(key, HTShapeKeys.INGOT)?.run {
             HTRuntimeDataRegistry.addRecipe(
                 HTShapedRecipeBuilder()
                     .inputs(3, 3) {
@@ -153,7 +149,7 @@ internal object HMDefaultPlugin : HTPlugin.Material {
         shapeKey: HTShapeKey,
         itemGroup: HTMaterialContentGroup<HTShapeKey, Item>,
     ) {
-        itemGroup.get(materialKey, HTShapeKeys.GEAR)?.run {
+        itemGroup.getOrNull(materialKey, HTShapeKeys.GEAR)?.run {
             HTRuntimeDataRegistry.addRecipe(
                 HTShapedRecipeBuilder()
                     .inputs(3, 3) {
@@ -175,7 +171,7 @@ internal object HMDefaultPlugin : HTPlugin.Material {
         shapeKey: HTShapeKey,
         itemGroup: HTMaterialContentGroup<HTShapeKey, Item>,
     ) {
-        itemGroup.get(materialKey, shapeKey)?.run {
+        itemGroup.getOrNull(materialKey, shapeKey)?.run {
             // Smelting Recipe
             HTRuntimeDataRegistry.addRecipe(
                 HTCookingRecipeBuilder()
@@ -199,7 +195,7 @@ internal object HMDefaultPlugin : HTPlugin.Material {
         shapeKey: HTShapeKey,
         itemGroup: HTMaterialContentGroup<HTShapeKey, Item>,
     ) {
-        itemGroup.get(materialKey, shapeKey)?.run {
+        itemGroup.getOrNull(materialKey, shapeKey)?.run {
             // Grinding
             HTRuntimeDataRegistry.addRecipe(
                 HTGrindingRecipe(
@@ -212,10 +208,10 @@ internal object HMDefaultPlugin : HTPlugin.Material {
     }
 
     // Block -> 4/9x Ingots/Gems
-    private fun registerBlockDecomposeRecipe(materialKey: HTMaterialKey, itemGroup: HTMaterialContentGroup<HTShapeKey, Item>, count: Int) {
+    /*private fun registerBlockDecomposeRecipe(materialKey: HTMaterialKey, itemGroup: HTMaterialContentGroup<HTShapeKey, Item>, count: Int) {
         val defaultShape: HTShapeKey = materialKey.get()[HTMaterialProperties.DEFAULT_ITEM_SHAPE]
             ?: return
-        val output: Item = itemGroup.get(materialKey, defaultShape) ?: return
+        val output: Item = itemGroup.getOrNull(materialKey, defaultShape) ?: return
         HTRuntimeDataRegistry.addRecipe(
             HTShapelessRecipeBuilder()
                 .output { ItemStack(output, count) }
@@ -241,7 +237,7 @@ internal object HMDefaultPlugin : HTPlugin.Material {
                 .output { ItemStack(block) }
                 .build(HTShapeKeys.BLOCK.get().getId(materialKey)),
         )
-    }
+    }*/
 
     /*@Suppress("UnstableApiUsage")
     @Environment(EnvType.CLIENT)
@@ -328,7 +324,7 @@ internal object HMDefaultPlugin : HTPlugin.Material {
     override fun bindMaterialWithItem(builder: HTMaterialItemManager.Builder) {
         super.bindMaterialWithItem(builder)
         // Register vanilla items
-        // registerVanillaItems(builder)
+        registerVanillaItems(builder)
         // Register items from content registry
         HTApiHolder.Material.apiInstance.materialContentManager.itemGroup.forEach { materialKey, shapeKey, item ->
             builder.add(materialKey, shapeKey, item)

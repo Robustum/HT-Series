@@ -14,4 +14,8 @@ object HTLogger {
     fun debug(action: (Logger) -> Unit) {
         if (isDevEnv) action(logger)
     }
+
+    fun <T : Throwable> throwing(throwable: T) {
+        log { it.error(throwable.localizedMessage) }
+    }
 }

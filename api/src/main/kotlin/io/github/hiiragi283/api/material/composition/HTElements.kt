@@ -277,7 +277,7 @@ object HTElements {
     val Al2O3 = HTElement.group(Al to 2, O to 3)
 
     @JvmField
-    val SiO2 = HTElement.group(Si to 1, O to 1)
+    val SiO2 = HTElement.group(Si to 1, O to 2)
 
     @JvmField
     val SO4 = HTElement.group(S to 1, O to 4)
