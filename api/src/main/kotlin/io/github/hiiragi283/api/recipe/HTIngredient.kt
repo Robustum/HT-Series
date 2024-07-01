@@ -6,7 +6,7 @@ import com.mojang.serialization.JsonOps
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import io.github.hiiragi283.api.extension.checkNotNull
 import io.github.hiiragi283.api.extension.decodeResult
-import io.github.hiiragi283.api.extension.safeValues
+import io.github.hiiragi283.api.extension.tryGetValues
 import io.github.hiiragi283.api.module.HTModuleType
 import io.github.hiiragi283.api.network.HTCodecSerializer
 import io.github.hiiragi283.api.network.HTPacketCodec
@@ -75,7 +75,7 @@ interface HTIngredient : Predicate<ItemStack>, Consumer<ItemStack> {
     //    Tag    //
 
     data class TagImpl(val tag: Tag<Item>, val count: Int) : HTIngredient {
-        override val previewStacks: List<ItemStack> = tag.safeValues().map { ItemStack(it, count) }
+        override val previewStacks: List<ItemStack> = tag.tryGetValues().map { ItemStack(it, count) }
 
         override fun test(t: ItemStack): Boolean = !t.isEmpty && t.item in tag && t.count >= count
 

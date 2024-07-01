@@ -1,4 +1,4 @@
-package io.github.hiiragi283.impl.mixin;
+package io.github.hiiragi283.mixin;
 
 import io.github.hiiragi283.api.extension.TypedIdentifier;
 import io.github.hiiragi283.api.item.HTItemSettings;

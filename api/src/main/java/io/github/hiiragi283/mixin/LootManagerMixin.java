@@ -1,4 +1,4 @@
-package io.github.hiiragi283.impl.mixin;
+package io.github.hiiragi283.mixin;
 
 import com.google.gson.JsonElement;
 import io.github.hiiragi283.impl.HTJSonDataLoaderMixin;

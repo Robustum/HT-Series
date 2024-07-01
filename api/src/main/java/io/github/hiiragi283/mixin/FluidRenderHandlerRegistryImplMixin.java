@@ -1,4 +1,4 @@
-package io.github.hiiragi283.impl.mixin;
+package io.github.hiiragi283.mixin;
 
 import io.github.hiiragi283.api.fluid.HTFluidRenderHandler;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandler;

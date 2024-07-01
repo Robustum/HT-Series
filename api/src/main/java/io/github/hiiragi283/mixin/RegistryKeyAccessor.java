@@ -1,4 +1,4 @@
-package io.github.hiiragi283.impl.mixin;
+package io.github.hiiragi283.mixin;
 
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.RegistryKey;

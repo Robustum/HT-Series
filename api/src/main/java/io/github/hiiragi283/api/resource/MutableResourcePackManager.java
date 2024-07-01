@@ -1,4 +1,4 @@
-package io.github.hiiragi283.impl;
+package io.github.hiiragi283.api.resource;
 
 import net.minecraft.resource.ResourcePackProvider;
 

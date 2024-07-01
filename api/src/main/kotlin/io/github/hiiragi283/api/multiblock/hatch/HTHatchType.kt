@@ -1,5 +1,6 @@
 package io.github.hiiragi283.api.multiblock.hatch
 
+import io.github.hiiragi283.api.extension.runCatchAndLog
 import io.github.hiiragi283.api.storage.HTStorageIO
 import io.github.hiiragi283.api.storage.HTStorageType
 import net.minecraft.nbt.NbtCompound
@@ -13,7 +14,7 @@ enum class HTHatchType(val entryType: HTStorageType, val ioType: HTStorageIO) {
 
     companion object {
         @JvmStatic
-        fun from(value: String): HTHatchType = runCatching { valueOf(value) }.getOrDefault(ITEM_INPUT)
+        fun from(value: String): HTHatchType = runCatchAndLog { valueOf(value) }.getOrDefault(ITEM_INPUT)
 
         @JvmStatic
         fun fromNbt(nbtCompound: NbtCompound): HTHatchType = nbtCompound.getString("Type").let(this::from)

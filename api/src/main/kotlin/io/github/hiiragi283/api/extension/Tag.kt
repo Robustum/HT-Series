@@ -1,6 +1,6 @@
 package io.github.hiiragi283.api.extension
 
-import io.github.hiiragi283.impl.mixin.TagBuilderAccessor
+import io.github.hiiragi283.mixin.TagBuilderAccessor
 import net.minecraft.tag.Tag
 import net.minecraft.util.Identifier
 

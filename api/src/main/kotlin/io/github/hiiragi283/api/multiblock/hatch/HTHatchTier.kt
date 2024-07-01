@@ -1,5 +1,6 @@
 package io.github.hiiragi283.api.multiblock.hatch
 
+import io.github.hiiragi283.api.extension.runCatchAndLog
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants
 import net.minecraft.nbt.NbtCompound
 
@@ -12,7 +13,7 @@ enum class HTHatchTier(val itemSlots: Int, val fluidSlots: Int, val size: Long) 
 
     companion object {
         @JvmStatic
-        fun from(value: String): HTHatchTier = runCatching { HTHatchTier.valueOf(value) }.getOrDefault(BASIC)
+        fun from(value: String): HTHatchTier = runCatchAndLog { HTHatchTier.valueOf(value) }.getOrDefault(BASIC)
 
         @JvmStatic
         fun fromNbt(nbtCompound: NbtCompound): HTHatchTier = nbtCompound.getString("Tier").let(this::from)

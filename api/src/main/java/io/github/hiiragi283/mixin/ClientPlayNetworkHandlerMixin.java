@@ -1,4 +1,4 @@
-package io.github.hiiragi283.impl.mixin;
+package io.github.hiiragi283.mixin;
 
 import io.github.hiiragi283.api.event.HTTagEvents;
 import net.minecraft.client.network.ClientPlayNetworkHandler;

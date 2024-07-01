@@ -1,4 +1,4 @@
-package io.github.hiiragi283.impl.mixin;
+package io.github.hiiragi283.mixin;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonElement;

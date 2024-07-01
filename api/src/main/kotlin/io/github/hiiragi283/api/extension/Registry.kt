@@ -1,6 +1,6 @@
 package io.github.hiiragi283.api.extension
 
-import io.github.hiiragi283.impl.mixin.RegistryKeyAccessor
+import io.github.hiiragi283.mixin.RegistryKeyAccessor
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
 import net.minecraft.util.registry.RegistryKey
