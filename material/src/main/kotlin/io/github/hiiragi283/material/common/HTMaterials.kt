@@ -15,7 +15,7 @@ import io.github.hiiragi283.api.material.HTMaterialKey
 import io.github.hiiragi283.api.material.HTMaterialRegistry
 import io.github.hiiragi283.api.material.content.HTMaterialContentGroup
 import io.github.hiiragi283.api.material.content.HTMaterialContentManager
-import io.github.hiiragi283.api.material.content.HTMaterialStorage
+import io.github.hiiragi283.api.material.content.HTMaterialStorageContent
 import io.github.hiiragi283.api.material.property.HTMaterialProperties
 import io.github.hiiragi283.api.module.*
 import io.github.hiiragi283.api.property.HTPropertyHolder
@@ -163,7 +163,7 @@ object HTMaterials : ModInitializer, DedicatedServerModInitializer {
 
     private fun registerMaterialStorageBlocks(materialApi: HTMaterialsAPI, builder: HTMaterialContentGroup.Builder<HTShapeKey, Block>) {
         materialApi.materialRegistry.forEach { materialKey, material ->
-            material[HTMaterialProperties.STORAGE]?.let { property: HTMaterialStorage ->
+            material[HTMaterialProperties.STORAGE]?.let { property: HTMaterialStorageContent ->
                 val block = property.block
                 val shapeKey = HTShapeKeys.BLOCK
                 val shape = shapeKey.get()
@@ -269,12 +269,6 @@ object HTMaterials : ModInitializer, DedicatedServerModInitializer {
                 }
             }
         }
-
-        /*HTMaterialEvent.MODIFY_BUILDER.register { builder ->
-            if (HTMaterialProperties.blockContent(HTShapeKeys.BLOCK) !in builder) {
-                builder.removeProperty(HTMaterialProperties.STORAGE_BLOCK_RECIPE)
-            }
-        }*/
 
         UseBlockCallback.EVENT.register { player: PlayerEntity, world: World, hand: Hand, result: BlockHitResult ->
             if (hand == Hand.OFF_HAND) return@register ActionResult.PASS

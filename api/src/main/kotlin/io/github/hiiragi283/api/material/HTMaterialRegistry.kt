@@ -2,6 +2,7 @@ package io.github.hiiragi283.api.material
 
 import com.google.common.collect.BiMap
 import com.google.common.collect.HashBiMap
+import com.mojang.serialization.Codec
 import io.github.hiiragi283.api.material.type.HTMaterialType
 import io.github.hiiragi283.api.property.HTPropertyHolder
 
@@ -16,6 +17,10 @@ class HTMaterialRegistry(private val biMap: BiMap<HTMaterialKey, HTPropertyHolde
                 .let { HashBiMap.create(it) }
                 .let(::HTMaterialRegistry)
         }
+
+        @JvmStatic
+        fun createCodec(materialRegistry: HTMaterialRegistry): Codec<HTPropertyHolder> =
+            HTMaterialKey.CODEC.xmap(materialRegistry::get, materialRegistry::getKey)
     }
 
     //    Map    //

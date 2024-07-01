@@ -1,5 +1,6 @@
 package io.github.hiiragi283.api.item.shape
 
+import com.mojang.serialization.Codec
 import io.github.hiiragi283.api.extension.checkNotNull
 import io.github.hiiragi283.api.material.HTMaterialTranslatable
 import io.github.hiiragi283.api.module.HTApiHolder
@@ -13,6 +14,9 @@ class HTShapeKey private constructor(val name: String) : Supplier<HTShape>, HTMa
 
         @JvmStatic
         fun of(name: String): HTShapeKey = INSTANCES.computeIfAbsent(name, ::HTShapeKey)
+
+        @JvmField
+        val CODEC: Codec<HTShapeKey> = Codec.STRING.xmap(Companion::of, HTShapeKey::name)
     }
 
     //    Supplier    //

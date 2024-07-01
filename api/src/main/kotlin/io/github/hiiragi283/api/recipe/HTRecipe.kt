@@ -29,15 +29,15 @@ data class HTRecipe(
         }
         if (inventory is HTEnergySourceFinder) {
             requiredEnergies.forEach { (type: HTEnergyType, minLevel: HTEnergyLevel) ->
-                inventory.getValidSide(type).directions.forEach { direction: Direction ->
-                    val currentLevel: HTEnergyLevel = HTEnergyManager.getLevelOrOff(
+                val checkEnergy: Boolean = inventory.getValidSide(type).directions.any { direction: Direction ->
+                    HTEnergyManager.getLevelOrOff(
                         type,
                         world,
                         inventory.pos().offset(direction),
                         direction.opposite,
-                    )
-                    if (currentLevel < minLevel) return false
+                    ) >= minLevel
                 }
+                if (!checkEnergy) return false
             }
         }
         return true
@@ -90,7 +90,11 @@ data class HTRecipe(
         private val requiredEnergies: MutableMap<HTEnergyType, HTEnergyLevel> = mutableMapOf()
 
         fun setInput(index: Int, input: HTIngredient): Builder = apply {
-            inputs.add(index, input)
+            if (inputs.getOrNull(index) == null) {
+                inputs.add(index, input)
+            } else {
+                inputs[index] = input
+            }
         }
 
         fun setInput(index: Int, item: Item, count: Int): Builder = setInput(index, HTIngredient.ItemImpl(item, count))
@@ -98,7 +102,11 @@ data class HTRecipe(
         fun setInput(index: Int, tag: Tag<Item>, count: Int): Builder = setInput(index, HTIngredient.TagImpl(tag, count))
 
         fun setOutput(index: Int, result: HTResult): Builder = apply {
-            outputs.add(index, result)
+            if (outputs.getOrNull(index) == null) {
+                outputs.add(index, result)
+            } else {
+                outputs[index] = result
+            }
         }
 
         fun setOutput(index: Int, item: Item, count: Int): Builder = setOutput(index, HTResult.ItemImpl(item, count))
@@ -110,9 +118,9 @@ data class HTRecipe(
         fun build(id: Identifier, type: HTRecipeType): HTRecipe = HTRecipe(
             id.prefix("${type.typeId.path}/"),
             type,
-            inputs,
-            outputs,
-            requiredEnergies,
+            inputs.toList(),
+            outputs.toList(),
+            requiredEnergies.toMap(),
         )
     }
 }

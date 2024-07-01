@@ -2,6 +2,7 @@ package io.github.hiiragi283.api.item.shape
 
 import com.google.common.collect.BiMap
 import com.google.common.collect.HashBiMap
+import com.mojang.serialization.Codec
 
 class HTShapeRegistry private constructor(private val biMap: BiMap<HTShapeKey, HTShape>) {
     companion object {
@@ -14,6 +15,9 @@ class HTShapeRegistry private constructor(private val biMap: BiMap<HTShapeKey, H
                 .let { HashBiMap.create(it) }
                 .let(::HTShapeRegistry)
         }
+
+        @JvmStatic
+        fun createCodec(shapeRegistry: HTShapeRegistry): Codec<HTShape> = HTShapeKey.CODEC.xmap(shapeRegistry::get, shapeRegistry::getKey)
     }
 
     //    Map    //

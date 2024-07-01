@@ -11,7 +11,6 @@ import net.minecraft.recipe.RecipeType
 
 @Environment(EnvType.CLIENT)
 object HTRecipeBookGroupRegistry {
-
     private val registry: MutableMap<RecipeType<*>, (Recipe<*>) -> RecipeBookGroup> = mutableMapOf()
 
     init {
@@ -24,13 +23,13 @@ object HTRecipeBookGroupRegistry {
                 else -> RecipeBookGroup.CRAFTING_MISC
             }
         }
-        register(RecipeType.SMELTING) { recipe -> 
+        register(RecipeType.SMELTING) { recipe ->
             val output: ItemStack = recipe.output
-            when  {
+            when {
                 output.item.isFood -> RecipeBookGroup.FURNACE_FOOD
                 output.item is BlockItem -> RecipeBookGroup.FURNACE_BLOCKS
                 else -> RecipeBookGroup.FURNACE_MISC
-            } 
+            }
         }
         register(RecipeType.BLASTING) { recipe ->
             when {
@@ -43,7 +42,7 @@ object HTRecipeBookGroupRegistry {
         register(RecipeType.CAMPFIRE_COOKING, RecipeBookGroup.CAMPFIRE)
         register(RecipeType.SMITHING, RecipeBookGroup.SMITHING)
     }
-    
+
     @JvmStatic
     fun register(type: RecipeType<*>, recipeBookGroup: RecipeBookGroup) {
         register(type) { recipeBookGroup }
@@ -59,5 +58,4 @@ object HTRecipeBookGroupRegistry {
 
     @JvmStatic
     fun getGroupOrUnknown(recipe: Recipe<*>): RecipeBookGroup = getGroup(recipe) ?: RecipeBookGroup.UNKNOWN
-
 }

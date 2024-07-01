@@ -10,7 +10,7 @@ import io.github.hiiragi283.api.material.HTMaterialKey
 import io.github.hiiragi283.api.material.HTMaterialKeys
 import io.github.hiiragi283.api.material.content.HTMaterialContentGroup
 import io.github.hiiragi283.api.material.content.HTMaterialOre
-import io.github.hiiragi283.api.material.content.HTMaterialStorage
+import io.github.hiiragi283.api.material.content.HTMaterialStorageContent
 import io.github.hiiragi283.api.material.property.HTConfiguredFeatureProperty
 import io.github.hiiragi283.api.material.property.HTMaterialProperties
 import io.github.hiiragi283.api.module.HTApiHolder
@@ -92,7 +92,7 @@ internal object HMDefaultPlugin : HTPlugin.Material {
                     }
                 }
             // If HTStorageBlockRecipe property exists
-            material[HTMaterialProperties.STORAGE]?.let { property: HTMaterialStorage ->
+            material[HTMaterialProperties.STORAGE]?.let { property: HTMaterialStorageContent ->
                 property.constructRecipe?.let(HTRuntimeDataRegistry::addRecipe)
                 property.decomposeRecipe?.let(HTRuntimeDataRegistry::addRecipe)
             }
@@ -223,7 +223,7 @@ internal object HMDefaultPlugin : HTPlugin.Material {
     }
 
     // 4/9x Ingots/Gems -> Block
-    private fun registerBlockConstructRecipe(materialKey: HTMaterialKey, material: HTPropertyHolder, recipeProperty: HTMaterialStorage) {
+    private fun registerBlockConstructRecipe(materialKey: HTMaterialKey, material: HTPropertyHolder, recipeProperty: HTMaterialStorageContent) {
         val block: Block = recipeProperty.block
         val defaultShape: HTShapeKey = material[HTMaterialProperties.DEFAULT_ITEM_SHAPE]
             ?: return

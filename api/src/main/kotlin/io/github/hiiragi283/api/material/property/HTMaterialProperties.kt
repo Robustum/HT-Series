@@ -5,7 +5,7 @@ import io.github.hiiragi283.api.fluid.phase.HTFluidPhase
 import io.github.hiiragi283.api.item.shape.HTShapeKey
 import io.github.hiiragi283.api.material.composition.HTElement
 import io.github.hiiragi283.api.material.content.HTMaterialOre
-import io.github.hiiragi283.api.material.content.HTMaterialStorage
+import io.github.hiiragi283.api.material.content.HTMaterialStorageContent
 import io.github.hiiragi283.api.material.type.HTMaterialType
 import io.github.hiiragi283.api.module.HTModuleType
 import io.github.hiiragi283.api.resource.HTModelJsonBuilder
@@ -62,7 +62,7 @@ object HTMaterialProperties {
         TypedIdentifier.of(HTModuleType.API.id("explosion"))
 
     @JvmField
-    val STORAGE: TypedIdentifier<HTMaterialStorage> =
+    val STORAGE: TypedIdentifier<HTMaterialStorageContent> =
         TypedIdentifier.of(HTModuleType.API.id("storage"))
 
     @JvmField

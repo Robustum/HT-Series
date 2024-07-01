@@ -9,6 +9,7 @@ import io.github.hiiragi283.api.network.HTCodecSerializer
 import io.github.hiiragi283.api.recipe.HTIngredient
 import io.github.hiiragi283.api.recipe.HTResult
 import io.github.hiiragi283.api.resource.HTRuntimeClientPack
+import io.github.hiiragi283.api.resource.MutableResourcePackManager
 import io.github.hiiragi283.api.screen.HTPropertySync
 import io.github.hiiragi283.api.screen.HTScreenHandler
 import io.github.hiiragi283.api.screen.widget.HTFluidWidget

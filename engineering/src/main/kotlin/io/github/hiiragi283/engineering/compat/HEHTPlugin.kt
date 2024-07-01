@@ -73,17 +73,18 @@ object HEHTPlugin : HTPlugin.Material {
         )
     }
 
+    private fun blastingRecipeBuilder(): HTRecipe.Builder = HTRecipe.Builder()
+        .setInput(0, HTShapeKeys.DUST.get().getItemTag(HTMaterialKeys.RAW_STEEl), 1)
+        .setOutput(0, getMaterialItem(HTMaterialKeys.STEEl, HTShapeKeys.INGOT), 1)
+        .setOutput(1, getMaterialItem(HTMaterialKeys.SLAG, HTShapeKeys.DUST), 1)
+        .setRequiredEnergy(HTEnergyType.HEAT, HTEnergyLevel.MEDIUM)
+
     private fun registerBlastingFurnaceRecipes() {
-        val builder = HTRecipe.Builder()
-            .setInput(0, HTShapeKeys.DUST.get().getItemTag(HTMaterialKeys.RAW_STEEl), 1)
-            .setOutput(0, getMaterialItem(HTMaterialKeys.STEEl, HTShapeKeys.INGOT), 1)
-            .setOutput(1, getMaterialItem(HTMaterialKeys.SLAG, HTShapeKeys.DUST), 1)
-            .setRequiredEnergy(HTEnergyType.HEAT, HTEnergyLevel.MEDIUM)
         HTRuntimeDataRegistry.addRecipes(
-            builder
+            blastingRecipeBuilder()
                 .setInput(1, HTShapeKeys.DUST.get().getItemTag(HTMaterialKeys.CHARCOAL), 2)
                 .build(HTModuleType.ENGINEERING.id("raw_steel"), HERecipeTypes.PRIMITIVE_BLAST_FURNACE),
-            builder
+            blastingRecipeBuilder()
                 .setInput(1, HTShapeKeys.DUST.get().getItemTag(HTMaterialKeys.COKE), 1)
                 .build(HTModuleType.ENGINEERING.id("raw_steel1"), HERecipeTypes.PRIMITIVE_BLAST_FURNACE),
         )

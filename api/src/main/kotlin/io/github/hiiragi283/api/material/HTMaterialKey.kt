@@ -1,5 +1,6 @@
 package io.github.hiiragi283.api.material
 
+import com.mojang.serialization.Codec
 import io.github.hiiragi283.api.extension.checkNotNull
 import io.github.hiiragi283.api.module.HTApiHolder
 import io.github.hiiragi283.api.module.HTLogger
@@ -16,6 +17,9 @@ class HTMaterialKey private constructor(val name: String) : Supplier<HTPropertyH
 
         @JvmStatic
         fun of(name: String): HTMaterialKey = INSTANCES.computeIfAbsent(name, ::HTMaterialKey)
+
+        @JvmField
+        val CODEC: Codec<HTMaterialKey> = Codec.STRING.xmap(Companion::of, HTMaterialKey::name)
     }
 
     //    Supplier    //

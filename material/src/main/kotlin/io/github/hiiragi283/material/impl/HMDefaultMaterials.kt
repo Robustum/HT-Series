@@ -224,7 +224,7 @@ internal object HMDefaultMaterials : HTPlugin.Material {
             .molecular(HTElements.Si to 1)
         builder.createSolid(HTMaterialKeys.SLAG)
             .mixture(HTElements.SiO2)
-            .color(HTColor.DARK_GRAY)
+            .color(averageColor(HTColor.DARK_GRAY to 3, HTColor.GOLD to 1))
         // Si - Stone
         builder.createStone(HTMaterialKeys.STONE)
             .mixture(HTElements.SiO2)

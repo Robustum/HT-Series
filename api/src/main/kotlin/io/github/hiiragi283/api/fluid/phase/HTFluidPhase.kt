@@ -1,5 +1,7 @@
 package io.github.hiiragi283.api.fluid.phase
 
+import com.mojang.serialization.Codec
+import io.github.hiiragi283.api.extension.enumCodec
 import io.github.hiiragi283.api.material.HTMaterialIdProvider
 import io.github.hiiragi283.api.material.HTMaterialKey
 import io.github.hiiragi283.api.material.HTMaterialTagProvider
@@ -24,6 +26,11 @@ enum class HTFluidPhase(
     GAS("%s_gas", "%s_gases", Identifier("block/white_concrete")),
     PLASMA("%s_plasma", "%s_plasmas", Identifier("block/white_concrete")),
     ;
+
+    companion object {
+        @JvmField
+        val CODEC: Codec<HTFluidPhase> = enumCodec(HTFluidPhase::valueOf)
+    }
 
     private val blacklist: MutableList<HTMaterialKey> = mutableListOf()
 

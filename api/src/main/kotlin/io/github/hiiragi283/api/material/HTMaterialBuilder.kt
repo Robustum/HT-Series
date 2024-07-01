@@ -7,7 +7,7 @@ import io.github.hiiragi283.api.item.shape.HTShapeKey
 import io.github.hiiragi283.api.item.shape.HTShapeKeys
 import io.github.hiiragi283.api.material.composition.HTElement
 import io.github.hiiragi283.api.material.composition.HTMaterialComposition
-import io.github.hiiragi283.api.material.content.HTMaterialStorage
+import io.github.hiiragi283.api.material.content.HTMaterialStorageContent
 import io.github.hiiragi283.api.material.property.HTMaterialFlags
 import io.github.hiiragi283.api.material.property.HTMaterialProperties
 import io.github.hiiragi283.api.material.type.HTBlockProperty
@@ -132,7 +132,7 @@ class HTMaterialBuilder(
         }
         return addProperty(
             HTMaterialProperties.STORAGE,
-            HTMaterialStorage.createFour(
+            HTMaterialStorageContent.createFour(
                 materialKey,
                 materialType,
                 miningLevel,
@@ -145,7 +145,7 @@ class HTMaterialBuilder(
         check(materialType is HTBlockProperty) {
             "Could not register with $materialKey because material type $materialType is not implementing HTBlockProperty!"
         }
-        val blockProperty: HTMaterialStorage = HTMaterialStorage.createNine(
+        val blockProperty: HTMaterialStorageContent = HTMaterialStorageContent.createNine(
             materialKey,
             materialType,
             miningLevel,

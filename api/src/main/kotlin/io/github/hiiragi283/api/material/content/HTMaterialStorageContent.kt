@@ -23,7 +23,7 @@ import net.minecraft.recipe.ShapelessRecipe
 import net.minecraft.text.MutableText
 import net.minecraft.util.Identifier
 
-class HTMaterialStorage private constructor(
+class HTMaterialStorageContent private constructor(
     val materialKey: HTMaterialKey,
     val property: HTBlockProperty,
     val count: Int,
@@ -31,12 +31,12 @@ class HTMaterialStorage private constructor(
 ) {
     companion object {
         @JvmStatic
-        fun createFour(materialKey: HTMaterialKey, type: HTBlockProperty, miningLevel: Int): HTMaterialStorage =
-            HTMaterialStorage(materialKey, type, 4, miningLevel)
+        fun createFour(materialKey: HTMaterialKey, type: HTBlockProperty, miningLevel: Int): HTMaterialStorageContent =
+            HTMaterialStorageContent(materialKey, type, 4, miningLevel)
 
         @JvmStatic
-        fun createNine(materialKey: HTMaterialKey, type: HTBlockProperty, miningLevel: Int): HTMaterialStorage =
-            HTMaterialStorage(materialKey, type, 9, miningLevel)
+        fun createNine(materialKey: HTMaterialKey, type: HTBlockProperty, miningLevel: Int): HTMaterialStorageContent =
+            HTMaterialStorageContent(materialKey, type, 9, miningLevel)
     }
 
     private val contentManager: HTMaterialContentManager by lazy { HTApiHolder.Material.apiInstance.materialContentManager }

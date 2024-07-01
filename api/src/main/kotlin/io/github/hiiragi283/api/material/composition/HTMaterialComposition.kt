@@ -6,12 +6,12 @@ import io.github.hiiragi283.api.extension.calculateMolar
 import io.github.hiiragi283.api.extension.formatFormula
 import java.awt.Color
 
-abstract class HTMaterialComposition {
-    abstract val componentMap: Map<HTElement, Int>
-    abstract val color: Color
-    abstract val formula: String
-    abstract val molar: Double
-
+data class HTMaterialComposition(
+    val componentMap: Map<HTElement, Int>,
+    val color: Color = averageColor(componentMap.mapKeys { it.key.color }),
+    val formula: String = formatFormula(componentMap.mapKeys { it.key.formula }),
+    val molar: Double = calculateMolar(componentMap.mapKeys { it.key.molar }),
+) {
     companion object {
         //    Molecular    //
 
@@ -19,7 +19,7 @@ abstract class HTMaterialComposition {
         fun molecular(vararg pairs: Pair<HTElement, Int>): HTMaterialComposition = molecular(mapOf(*pairs))
 
         @JvmStatic
-        fun molecular(map: Map<HTElement, Int>): HTMaterialComposition = Immutable(map)
+        fun molecular(map: Map<HTElement, Int>): HTMaterialComposition = HTMaterialComposition(map)
 
         //    Hydrate    //
 
@@ -27,7 +27,7 @@ abstract class HTMaterialComposition {
         fun hydrate(vararg pairs: Pair<HTElement, Int>, waterCount: Int): HTMaterialComposition = hydrate(molecular(*pairs), waterCount)
 
         @JvmStatic
-        fun hydrate(unhydrate: HTMaterialComposition, waterCount: Int): HTMaterialComposition = Immutable(
+        fun hydrate(unhydrate: HTMaterialComposition, waterCount: Int): HTMaterialComposition = HTMaterialComposition(
             buildMap {
                 putAll(unhydrate.componentMap)
                 put(HTElements.WATER, waterCount)
@@ -43,7 +43,7 @@ abstract class HTMaterialComposition {
         fun mixture(vararg providers: HTElement): HTMaterialComposition = mixture(providers.toList())
 
         @JvmStatic
-        fun mixture(elements: Iterable<HTElement>): HTMaterialComposition = Immutable(
+        fun mixture(elements: Iterable<HTElement>): HTMaterialComposition = HTMaterialComposition(
             elements.associateWith { 1 },
             averageColor(elements.map(HTElement::color)),
             "(${elements.joinToString(", ", transform = HTElement::formula)})",
@@ -56,7 +56,7 @@ abstract class HTMaterialComposition {
         fun polymer(vararg pairs: Pair<HTElement, Int>): HTMaterialComposition = polymer(molecular(*pairs))
 
         @JvmStatic
-        fun polymer(monomar: HTMaterialComposition): HTMaterialComposition = Immutable(
+        fun polymer(monomar: HTMaterialComposition): HTMaterialComposition = HTMaterialComposition(
             monomar.componentMap,
             monomar.color,
             "(${monomar.formula})n",
@@ -64,7 +64,7 @@ abstract class HTMaterialComposition {
         )
     }
 
-    private data object Empty : HTMaterialComposition() {
+    /*private data object Empty : HTMaterialComposition() {
         override val componentMap: Map<HTElement, Int> = mapOf()
         override val color: Color = HTColor.WHITE
         override val formula: String = ""
@@ -76,5 +76,5 @@ abstract class HTMaterialComposition {
         override var color: Color = averageColor(componentMap.mapKeys { it.key.color }),
         override var formula: String = formatFormula(componentMap.mapKeys { it.key.formula }),
         override var molar: Double = calculateMolar(componentMap.mapKeys { it.key.molar }),
-    ) : HTMaterialComposition()
+    ) : HTMaterialComposition()*/
 }
