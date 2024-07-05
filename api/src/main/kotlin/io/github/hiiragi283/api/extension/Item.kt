@@ -25,10 +25,7 @@ fun <B : Block, I : Item> createBlockItem(
     settings: FabricItemSettings.() -> FabricItemSettings,
 ): I = constructor(block, settings(FabricItemSettings()))
 
-fun <T : Item> createItem(
-    constructor: (FabricItemSettings) -> T,
-    settings: FabricItemSettings.() -> FabricItemSettings
-): Item =
+fun <T : Item> createItem(constructor: (FabricItemSettings) -> T, settings: FabricItemSettings.() -> FabricItemSettings): Item =
     constructor(settings(FabricItemSettings()))
 
 val Item.isAir: Boolean

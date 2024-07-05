@@ -44,7 +44,7 @@ internal object HTMixinImpls {
             FabricToolTags.AXES,
             FabricToolTags.HOES,
             FabricToolTags.PICKAXES,
-            FabricToolTags.SHOVELS
+            FabricToolTags.SHOVELS,
         )
 
         EnchantmentTarget.FISHING_ROD -> target.isAcceptableItem(item)
@@ -55,7 +55,7 @@ internal object HTMixinImpls {
         EnchantmentTarget.CROSSBOW -> target.isAcceptableItem(item)
         EnchantmentTarget.VANISHABLE -> target.isAcceptableItem(item)
     }
-    
+
     //    Loot Table    //
 
     private val LOOT_GSON: Gson = LootGsons.getTableGsonBuilder().create()

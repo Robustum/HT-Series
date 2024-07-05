@@ -12,10 +12,9 @@ import net.minecraft.world.WorldAccess
 object HTMaterialLibraryBlock : HTItemConvertingBlock(
     FabricBlockSettings.copyOf(Blocks.BOOKSHELF).requiresTool().breakByTool(FabricToolTags.AXES),
 ) {
-    override fun convertStack(world: WorldAccess, pos: BlockPos, stack: ItemStack): List<ItemStack> = 
-        HTApiHolder.Material
-            .apiInstance
-            .materialItemManager
-            .convert(stack)
-            .let(::listOf)
+    override fun convertStack(world: WorldAccess, pos: BlockPos, stack: ItemStack): List<ItemStack> = HTApiHolder.Material
+        .apiInstance
+        .materialItemManager
+        .convert(stack)
+        .let(::listOf)
 }
