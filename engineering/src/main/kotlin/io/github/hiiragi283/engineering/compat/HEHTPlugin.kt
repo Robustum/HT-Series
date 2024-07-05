@@ -11,13 +11,14 @@ import io.github.hiiragi283.api.module.HTMaterialsAPI
 import io.github.hiiragi283.api.module.HTModuleType
 import io.github.hiiragi283.api.module.HTPlugin
 import io.github.hiiragi283.api.recipe.HTRecipe
+import io.github.hiiragi283.api.recipe.builder.HTShapedRecipeBuilder
 import io.github.hiiragi283.api.resource.HTRuntimeDataRegistry
-import io.github.hiiragi283.api.resource.recipe.HTShapedRecipeBuilder
 import io.github.hiiragi283.engineering.common.init.HEItems
-import io.github.hiiragi283.engineering.common.init.HERecipeTypes
+import io.github.hiiragi283.engineering.common.init.HEMachineTypes
 import net.minecraft.item.Item
 import net.minecraft.item.Items
 import net.minecraft.recipe.Ingredient
+import net.minecraft.tag.Tag
 
 object HEHTPlugin : HTPlugin.Material {
     override val modId: String = HTModuleType.ENGINEERING.modId
@@ -64,29 +65,33 @@ object HEHTPlugin : HTPlugin.Material {
 
     private fun registerCauldronRecipes() {
         HTRuntimeDataRegistry.addRecipes(
-            HTRecipe.Builder()
-                .setInput(0, Items.BUCKET, 1)
-                .setInput(1, Items.ICE, 1)
-                .setOutput(0, Items.WATER_BUCKET, 1)
-                .setRequiredEnergy(HTEnergyType.HEAT, HTEnergyLevel.LOW)
-                .build(HTModuleType.ENGINEERING.id("cauldron_test"), HERecipeTypes.CAULDRON),
+            HTRecipe.Builder.create(
+                HTModuleType.ENGINEERING.id("cauldron_test"),
+                HEMachineTypes.CAULDRON,
+            ) {
+                setInput(0, Items.BUCKET, 1)
+                setInput(1, Items.ICE, 1)
+                setOutput(0, Items.WATER_BUCKET, 1)
+                setRequiredEnergy(HTEnergyType.HEAT, HTEnergyLevel.LOW)
+            },
         )
     }
 
-    private fun blastingRecipeBuilder(): HTRecipe.Builder = HTRecipe.Builder()
-        .setInput(0, HTShapeKeys.DUST.get().getItemTag(HTMaterialKeys.RAW_STEEl), 1)
-        .setOutput(0, getMaterialItem(HTMaterialKeys.STEEl, HTShapeKeys.INGOT), 1)
-        .setOutput(1, getMaterialItem(HTMaterialKeys.SLAG, HTShapeKeys.DUST), 1)
-        .setRequiredEnergy(HTEnergyType.HEAT, HTEnergyLevel.MEDIUM)
+    private fun createBlastingRecipe(path: String, tag: Tag<Item>, count: Int): HTRecipe = HTRecipe.Builder.create(
+        HTModuleType.ENGINEERING.id(path),
+        HEMachineTypes.PRIMITIVE_BLAST_FURNACE,
+    ) {
+        setInput(0, HTShapeKeys.DUST.get().getItemTag(HTMaterialKeys.RAW_STEEl), 1)
+        setInput(1, tag, count)
+        setOutput(0, getMaterialItem(HTMaterialKeys.STEEl, HTShapeKeys.INGOT), 1)
+        setOutput(1, getMaterialItem(HTMaterialKeys.SLAG, HTShapeKeys.DUST), 1)
+        setRequiredEnergy(HTEnergyType.HEAT, HTEnergyLevel.MEDIUM)
+    }
 
     private fun registerBlastingFurnaceRecipes() {
         HTRuntimeDataRegistry.addRecipes(
-            blastingRecipeBuilder()
-                .setInput(1, HTShapeKeys.DUST.get().getItemTag(HTMaterialKeys.CHARCOAL), 2)
-                .build(HTModuleType.ENGINEERING.id("raw_steel"), HERecipeTypes.PRIMITIVE_BLAST_FURNACE),
-            blastingRecipeBuilder()
-                .setInput(1, HTShapeKeys.DUST.get().getItemTag(HTMaterialKeys.COKE), 1)
-                .build(HTModuleType.ENGINEERING.id("raw_steel1"), HERecipeTypes.PRIMITIVE_BLAST_FURNACE),
+            createBlastingRecipe("raw_steel", HTShapeKeys.DUST.get().getItemTag(HTMaterialKeys.CHARCOAL), 2),
+            createBlastingRecipe("raw_steel1", HTShapeKeys.DUST.get().getItemTag(HTMaterialKeys.COKE), 1),
         )
     }
 }

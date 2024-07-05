@@ -11,7 +11,7 @@ import net.minecraft.screen.ScreenHandlerContext
 import net.minecraft.screen.ScreenHandlerType
 import net.minecraft.util.Identifier
 
-class HTSlot2xScreenHandler(
+class HTMachineScreenHandler(
     syncId: Int,
     playerInventory: PlayerInventory,
     context: ScreenHandlerContext = ScreenHandlerContext.EMPTY,
@@ -55,9 +55,9 @@ class HTSlot2xScreenHandler(
 
     companion object {
         @JvmField
-        val TYPE: ScreenHandlerType<HTSlot2xScreenHandler> = ScreenHandlerRegistry.registerSimple(
-            HTModuleType.API.id("slot_2"),
-            ::HTSlot2xScreenHandler,
+        val TYPE: ScreenHandlerType<HTMachineScreenHandler> = ScreenHandlerRegistry.registerSimple(
+            HTModuleType.API.id("machine"),
+            ::HTMachineScreenHandler,
         )
     }
 }

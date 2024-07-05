@@ -1,4 +1,4 @@
-package io.github.hiiragi283.api.multiblock
+package io.github.hiiragi283.api.machine.multiblock
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonNull
@@ -8,7 +8,6 @@ import io.github.hiiragi283.api.extension.addProperty
 import io.github.hiiragi283.api.extension.buildJson
 import io.github.hiiragi283.api.extension.encodeResult
 import io.github.hiiragi283.api.extension.toJsonArray
-import io.github.hiiragi283.api.multiblock.hatch.HTHatchProvider
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
@@ -32,15 +31,9 @@ sealed class HTBlockPredicate : BiPredicate<World, BlockPos> {
 
     abstract val json: JsonElement
 
-    fun getHatch(world: World, pos: BlockPos): HTHatchProvider? = world.getBlockState(pos).block as? HTHatchProvider
+    // fun getHatch(world: World, pos: BlockPos): HTHatchProvider? = world.getBlockState(pos).block as? HTHatchProvider
 
-    final override fun test(world: World, pos: BlockPos): Boolean = if (world.getBlockState(pos).block is HTHatchProvider) {
-        true
-    } else {
-        internalTest(world, pos)
-    }
-
-    protected abstract fun internalTest(world: World, pos: BlockPos): Boolean
+    // protected abstract fun internalTest(world: World, pos: BlockPos): Boolean
 
     companion object {
         @JvmStatic
@@ -61,7 +54,7 @@ sealed class HTBlockPredicate : BiPredicate<World, BlockPos> {
 
         override val json: JsonElement = JsonNull.INSTANCE
 
-        override fun internalTest(world: World, pos: BlockPos): Boolean = true
+        override fun test(world: World, pos: BlockPos): Boolean = true
     }
 
     private data class Simple(private val blocks: List<Block>) : HTBlockPredicate() {
@@ -74,7 +67,7 @@ sealed class HTBlockPredicate : BiPredicate<World, BlockPos> {
             .map { it.toString() }
             .toJsonArray(::JsonPrimitive)
 
-        override fun internalTest(world: World, pos: BlockPos): Boolean = world.getBlockState(pos).block in blocks
+        override fun test(world: World, pos: BlockPos): Boolean = world.getBlockState(pos).block in blocks
     }
 
     private data class Group(private val tag: Tag<Block>) : HTBlockPredicate() {
@@ -85,7 +78,7 @@ sealed class HTBlockPredicate : BiPredicate<World, BlockPos> {
             (tag as? Tag.Identified<Block>)?.id?.let { addProperty("tag", it) }
         }
 
-        override fun internalTest(world: World, pos: BlockPos): Boolean = world.getBlockState(pos).isIn(tag)
+        override fun test(world: World, pos: BlockPos): Boolean = world.getBlockState(pos).isIn(tag)
     }
 
     private data class States(override val previewStates: List<BlockState>) : HTBlockPredicate() {
@@ -94,6 +87,6 @@ sealed class HTBlockPredicate : BiPredicate<World, BlockPos> {
             .mapNotNull(Result<JsonElement>::getOrNull)
             .toJsonArray()
 
-        override fun internalTest(world: World, pos: BlockPos): Boolean = world.getBlockState(pos) in previewStates
+        override fun test(world: World, pos: BlockPos): Boolean = world.getBlockState(pos) in previewStates
     }
 }

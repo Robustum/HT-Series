@@ -9,9 +9,7 @@ object HEInit {
     init {
         HEBlocks
         HEItems
-        HEBlockEntityTypes
-        HERecipeTypes
-        HEMultiblockShapes
+        HEMachineTypes
     }
 
     //    ScreenHandlerType    //

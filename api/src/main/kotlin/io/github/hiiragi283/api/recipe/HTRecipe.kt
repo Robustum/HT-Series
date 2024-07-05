@@ -84,7 +84,7 @@ data class HTRecipe(
 
     //    Builder    //
 
-    class Builder {
+    class Builder private constructor() {
         private val inputs: MutableList<HTIngredient> = mutableListOf()
         private val outputs: MutableList<HTResult> = mutableListOf()
         private val requiredEnergies: MutableMap<HTEnergyType, HTEnergyLevel> = mutableMapOf()
@@ -115,12 +115,18 @@ data class HTRecipe(
             requiredEnergies[type] = minLevel
         }
 
-        fun build(id: Identifier, type: HTRecipeType): HTRecipe = HTRecipe(
-            id.prefix("${type.typeId.path}/"),
+        private fun build(id: Identifier, type: HTRecipeType): HTRecipe = HTRecipe(
+            id.prefix("${type.name}/"),
             type,
             inputs.toList(),
             outputs.toList(),
             requiredEnergies.toMap(),
         )
+
+        companion object {
+            @JvmStatic
+            fun create(id: Identifier, type: HTRecipeType, builderAction: Builder.() -> Unit): HTRecipe =
+                Builder().apply(builderAction).build(id, type)
+        }
     }
 }

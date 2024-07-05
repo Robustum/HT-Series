@@ -1,6 +1,6 @@
 package io.github.hiiragi283.api.block
 
-import io.github.hiiragi283.api.block.entity.HTBlockEntity
+import io.github.hiiragi283.api.block.entity.HTMultiblockControllerBlockEntity
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
 import net.minecraft.block.HorizontalFacingBlock.FACING
@@ -13,7 +13,7 @@ import net.minecraft.util.math.Direction
 @Suppress("OVERRIDE_DEPRECATION")
 class HTMultiblockControllerBlock(
     settings: Settings,
-    blockEntityConstructor: () -> HTBlockEntity?,
+    blockEntityConstructor: () -> HTMultiblockControllerBlockEntity?,
 ) : HTSimpleBlockWithEntity(settings, blockEntityConstructor) {
     init {
         defaultState = stateManager.defaultState.with(FACING, Direction.NORTH)

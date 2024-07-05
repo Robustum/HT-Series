@@ -1,18 +1,19 @@
 package io.github.hiiragi283.api.block.entity
 
 import io.github.cottonmc.cotton.gui.PropertyDelegateHolder
+import io.github.hiiragi283.api.energy.HTEnergyType
 import io.github.hiiragi283.api.extension.buildPropertyDelegate
+import io.github.hiiragi283.api.machine.HTMachineType
 import io.github.hiiragi283.api.module.HTLogger
 import io.github.hiiragi283.api.recipe.HTRecipe
-import io.github.hiiragi283.api.recipe.HTRecipeType
-import io.github.hiiragi283.api.screen.HTSlot2xScreenHandler
+import io.github.hiiragi283.api.screen.HTMachineScreenHandler
 import io.github.hiiragi283.api.storage.*
 import net.minecraft.block.BlockState
-import net.minecraft.block.entity.BlockEntityType
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.screen.*
+import net.minecraft.text.Text
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import net.minecraft.util.Tickable
@@ -21,8 +22,8 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import kotlin.jvm.optionals.getOrNull
 
-abstract class HTAbstractMachineBlockEntity(type: BlockEntityType<*>, protected val recipeType: HTRecipeType) :
-    HTBlockEntity(type),
+open class HTMachineBlockEntity(open val machineType: HTMachineType<*>) :
+    HTBlockEntity(machineType),
     NamedScreenHandlerFactory,
     PropertyDelegateHolder,
     Tickable,
@@ -58,8 +59,10 @@ abstract class HTAbstractMachineBlockEntity(type: BlockEntityType<*>, protected 
 
     //    NamedScreenHandlerFactory    //
 
+    override fun getDisplayName(): Text = machineType.icon().name
+
     override fun createMenu(syncId: Int, inv: PlayerInventory, player: PlayerEntity): ScreenHandler =
-        HTSlot2xScreenHandler(syncId, inv, ScreenHandlerContext.create(player.world, pos))
+        HTMachineScreenHandler(syncId, inv, ScreenHandlerContext.create(player.world, pos))
 
     //    PropertyDelegateHolder    //
 
@@ -74,7 +77,7 @@ abstract class HTAbstractMachineBlockEntity(type: BlockEntityType<*>, protected 
             if (!world.isClient) {
                 propertyDelegate[0] = (world.time % 200).toInt()
                 if (world.time > 0 && propertyDelegate[0] == 0) {
-                    val recipe: HTRecipe = world.recipeManager.getFirstMatch(recipeType, this, world)
+                    val recipe: HTRecipe = world.recipeManager.getFirstMatch(machineType, this, world)
                         .getOrNull()
                         ?: return@onWorldLoaded
                     HTLogger.debug { it.info("Found recipe: $recipe") }
@@ -98,4 +101,6 @@ abstract class HTAbstractMachineBlockEntity(type: BlockEntityType<*>, protected 
     //    HTEnergySourceFinder    //
 
     final override fun pos(): BlockPos = pos
+
+    override fun getValidSide(type: HTEnergyType): HTStorageSide = machineType.getValidSide(type)
 }

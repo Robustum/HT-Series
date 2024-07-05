@@ -1,4 +1,4 @@
-package io.github.hiiragi283.api.multiblock
+package io.github.hiiragi283.api.machine.multiblock
 
 import io.github.hiiragi283.api.block.entity.HTMultiblockControllerBlockEntity
 import io.github.hiiragi283.api.extension.getOrNull
@@ -24,6 +24,6 @@ class HTMultiblockRenderer<T : HTMultiblockControllerBlockEntity>(renderDispatch
     ) {
         if (!entity.showPreview) return
         val direction: Direction? = entity.cachedState.getOrNull(Properties.HORIZONTAL_FACING)
-        entity.world?.let { entity.multiblock.render(matrices, vertexConsumers, it, direction) }
+        entity.world?.let { entity.machineType.multiblockShape.render(matrices, vertexConsumers, it, direction) }
     }
 }

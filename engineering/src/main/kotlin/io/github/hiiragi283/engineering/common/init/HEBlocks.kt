@@ -1,10 +1,10 @@
 package io.github.hiiragi283.engineering.common.init
 
+import io.github.hiiragi283.api.block.HTMachineBlock
 import io.github.hiiragi283.api.block.HTMultiblockControllerBlock
-import io.github.hiiragi283.api.block.HTSimpleBlockWithEntity
 import io.github.hiiragi283.api.module.HTModuleType
+import io.github.hiiragi283.engineering.common.block.HTPiglinLootBlock
 import io.github.hiiragi283.engineering.common.block.entity.HTBlastingFurnaceBlockEntity
-import io.github.hiiragi283.engineering.common.block.entity.HTCauldronBlockEntity
 import net.fabricmc.fabric.api.`object`.builder.v1.block.FabricBlockSettings
 import net.minecraft.block.Block
 import net.minecraft.block.Blocks
@@ -42,12 +42,21 @@ object HEBlocks {
     )
 
     @JvmField
+    val STEEL_HULL = registerBlock(
+        "steel_hull",
+        Block(FabricBlockSettings.copy(Blocks.IRON_BLOCK)),
+    )
+
+    @JvmField
+    val BASALT_COBBLESTONE = registerBlock(
+        "basalt_cobblestone",
+        Block(FabricBlockSettings.copy(Blocks.BASALT)),
+    )
+
+    @JvmField
     val CAULDRON: Block = registerBlock(
         "cauldron",
-        HTSimpleBlockWithEntity(
-            FabricBlockSettings.copy(Blocks.CAULDRON),
-            ::HTCauldronBlockEntity,
-        ),
+        HTMachineBlock(FabricBlockSettings.copy(Blocks.CAULDRON)) { HEMachineTypes.CAULDRON },
     )
 
     @JvmField
@@ -57,6 +66,12 @@ object HEBlocks {
             FabricBlockSettings.copy(Blocks.BRICKS),
             ::HTBlastingFurnaceBlockEntity,
         ),
+    )
+
+    @JvmField
+    val PIGLIN_LOOT = registerBlock(
+        "piglin_loot",
+        HTPiglinLootBlock,
     )
 
     private fun <T : Block> registerBlock(path: String, block: T): T = Registry.register(

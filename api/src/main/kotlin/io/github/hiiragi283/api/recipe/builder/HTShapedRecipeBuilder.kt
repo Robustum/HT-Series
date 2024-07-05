@@ -1,4 +1,4 @@
-package io.github.hiiragi283.api.resource.recipe
+package io.github.hiiragi283.api.recipe.builder
 
 import io.github.hiiragi283.api.extension.buildDefaultedList
 import io.github.hiiragi283.api.extension.prefix
