@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import java.util.Map;
 
 @Mixin(RecipeManager.class)
-public class RecipeManagerMixin {
+public abstract class RecipeManagerMixin {
     
     @Inject(method = "apply(Ljava/util/Map;Lnet/minecraft/resource/ResourceManager;Lnet/minecraft/util/profiler/Profiler;)V", at = @At(value = "INVOKE", target = "Ljava/util/Map;entrySet()Ljava/util/Set;", ordinal = 1, shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILHARD)
     private void ht_api$putRecipe(Map<Identifier, JsonElement> map, ResourceManager resourceManager, Profiler profiler, CallbackInfo ci, Map<RecipeType<?>, ImmutableMap.Builder<Identifier, Recipe<?>>> map2) {

@@ -5,9 +5,14 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import io.github.hiiragi283.api.event.HTTagEvents
 import io.github.hiiragi283.api.extension.arrange
+import io.github.hiiragi283.api.extension.isInAny
 import io.github.hiiragi283.api.extension.runCatchAndLog
 import io.github.hiiragi283.api.module.HTLogger
 import io.github.hiiragi283.api.resource.HTRuntimeDataRegistry
+import io.github.hiiragi283.api.tag.HTItemTags
+import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags
+import net.minecraft.enchantment.EnchantmentTarget
+import net.minecraft.item.Item
 import net.minecraft.loot.*
 import net.minecraft.loot.condition.LootCondition
 import net.minecraft.loot.condition.LootConditionManager
@@ -24,7 +29,33 @@ import net.minecraft.util.registry.Registry
 import java.io.BufferedReader
 import java.io.InputStream
 
-internal object HTJSonDataLoaderMixin {
+internal object HTMixinImpls {
+    //    Enchantment    //
+
+    @JvmStatic
+    fun isAcceptableItem(target: EnchantmentTarget, item: Item): Boolean = when (target) {
+        EnchantmentTarget.ARMOR -> target.isAcceptableItem(item) || item in HTItemTags.ARMOR
+        EnchantmentTarget.ARMOR_FEET -> target.isAcceptableItem(item) || item in HTItemTags.ARMOR_FEET
+        EnchantmentTarget.ARMOR_LEGS -> target.isAcceptableItem(item) || item in HTItemTags.ARMOR_LEGS
+        EnchantmentTarget.ARMOR_CHEST -> target.isAcceptableItem(item) || item in HTItemTags.ARMOR_CHEST
+        EnchantmentTarget.ARMOR_HEAD -> target.isAcceptableItem(item) || item in HTItemTags.ARMOR_HEAD
+        EnchantmentTarget.WEAPON -> target.isAcceptableItem(item) || item in FabricToolTags.SWORDS
+        EnchantmentTarget.DIGGER -> target.isAcceptableItem(item) || item.isInAny(
+            FabricToolTags.AXES,
+            FabricToolTags.HOES,
+            FabricToolTags.PICKAXES,
+            FabricToolTags.SHOVELS
+        )
+
+        EnchantmentTarget.FISHING_ROD -> target.isAcceptableItem(item)
+        EnchantmentTarget.TRIDENT -> target.isAcceptableItem(item)
+        EnchantmentTarget.BREAKABLE -> target.isAcceptableItem(item)
+        EnchantmentTarget.BOW -> target.isAcceptableItem(item)
+        EnchantmentTarget.WEARABLE -> target.isAcceptableItem(item)
+        EnchantmentTarget.CROSSBOW -> target.isAcceptableItem(item)
+        EnchantmentTarget.VANISHABLE -> target.isAcceptableItem(item)
+    }
+    
     //    Loot Table    //
 
     private val LOOT_GSON: Gson = LootGsons.getTableGsonBuilder().create()

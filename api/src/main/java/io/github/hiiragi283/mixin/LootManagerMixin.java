@@ -1,7 +1,7 @@
 package io.github.hiiragi283.mixin;
 
 import com.google.gson.JsonElement;
-import io.github.hiiragi283.impl.HTJSonDataLoaderMixin;
+import io.github.hiiragi283.impl.HTMixinImpls;
 import net.minecraft.loot.LootManager;
 import net.minecraft.loot.LootTable;
 import net.minecraft.loot.condition.LootConditionManager;
@@ -29,7 +29,7 @@ public abstract class LootManagerMixin {
 
     @Inject(method = "apply(Ljava/util/Map;Lnet/minecraft/resource/ResourceManager;Lnet/minecraft/util/profiler/Profiler;)V", at = @At("HEAD"), cancellable = true)
     private void ht_api$putTable(Map<Identifier, JsonElement> map, ResourceManager resourceManager, Profiler profiler, CallbackInfo ci) {
-        tables = HTJSonDataLoaderMixin.loadLootTables(map, conditionManager);
+        tables = HTMixinImpls.loadLootTables(map, conditionManager);
         ci.cancel();
     }
 

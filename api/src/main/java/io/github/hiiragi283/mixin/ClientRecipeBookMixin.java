@@ -1,6 +1,6 @@
 package io.github.hiiragi283.mixin;
 
-import io.github.hiiragi283.api.extension.HTRecipeBookGroupRegistry;
+import io.github.hiiragi283.api.recipe.HTRecipeBookGroupRegistry;
 import net.minecraft.client.recipebook.ClientRecipeBook;
 import net.minecraft.client.recipebook.RecipeBookGroup;
 import net.minecraft.recipe.Recipe;

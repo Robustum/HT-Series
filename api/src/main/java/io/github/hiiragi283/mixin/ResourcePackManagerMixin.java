@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import io.github.hiiragi283.api.resource.MutableResourcePackManager;
 import net.minecraft.resource.ResourcePackManager;
 import net.minecraft.resource.ResourcePackProvider;
+import net.minecraft.util.Util;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
@@ -18,9 +19,9 @@ public abstract class ResourcePackManagerMixin implements MutableResourcePackMan
 
     @Override
     public void ht_materials$addPackProvider(ResourcePackProvider provider) {
-        ImmutableSet.Builder<ResourcePackProvider> builder = ImmutableSet.builder();
-        builder.addAll(providers);
-        builder.add(provider);
-        providers = builder.build();
+        providers = Util.make(ImmutableSet.<ResourcePackProvider>builder(), builder -> {
+            builder.addAll(providers);
+            builder.add(provider);
+        }).build();
     }
 }

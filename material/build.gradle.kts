@@ -33,6 +33,7 @@ dependencies {
     implementation(project(path = ":api", configuration = "namedElements")) {
         exclude(module = "fabric-api")
         exclude(module = "fabric-loader")
+        exclude(module = "yarn")
     }
 }
 
