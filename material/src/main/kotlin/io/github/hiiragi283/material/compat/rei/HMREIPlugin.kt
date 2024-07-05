@@ -20,7 +20,7 @@ object HMREIPlugin : REIPluginV0 {
     val MATERIAL: Identifier = HTModuleType.MATERIAL.id("material")
 
     @JvmField
-    val GRINDING = HTModuleType.MATERIAL.id("grinding")
+    val GRINDING: Identifier = HTModuleType.MATERIAL.id("grinding")
 
     override fun getPluginIdentifier(): Identifier = HTModuleType.MATERIAL.id("plugin")
 

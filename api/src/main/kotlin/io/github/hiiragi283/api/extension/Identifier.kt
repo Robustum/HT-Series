@@ -2,6 +2,8 @@ package io.github.hiiragi283.api.extension
 
 import net.minecraft.util.Identifier
 
+fun commonId(path: String): Identifier = Identifier("c", path)
+
 fun Identifier.prefix(prefix: String) = Identifier(this.namespace, prefix + this.path)
 
 fun Identifier.suffix(suffix: String) = Identifier(this.namespace, this.path + suffix)

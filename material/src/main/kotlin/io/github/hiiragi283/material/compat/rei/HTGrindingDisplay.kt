@@ -8,18 +8,16 @@ import org.jetbrains.annotations.ApiStatus
 import java.util.*
 
 @ApiStatus.Experimental
-class HTGrindingDisplay(
+class HTGrindingDisplay private constructor(
     private val inputs: List<List<EntryStack>>,
     private val output: List<List<EntryStack>>,
+    private val display: HTGrindingRecipe?,
 ) : RecipeDisplay {
-    private var display: HTGrindingRecipe? = null
-
     constructor(recipe: HTGrindingRecipe) : this(
         EntryStack.ofIngredients(recipe.ingredients),
         listOf(listOf(EntryStack.create(recipe.output))),
-    ) {
-        display = recipe
-    }
+        recipe,
+    )
 
     override fun getRecipeLocation(): Optional<Identifier> = Optional.ofNullable(display).map(HTGrindingRecipe::getId)
 

@@ -13,7 +13,7 @@ interface HTPlugin {
     val modId: String
     val priority: Int
 
-    fun id(path: String) = Identifier(modId, path)
+    fun id(path: String): Identifier = Identifier(modId, path)
 
     interface Material : HTPlugin {
         //    Init    //
@@ -21,8 +21,6 @@ interface HTPlugin {
         fun registerShape(builder: HTShapeRegistry.Builder) {}
 
         fun registerMaterial(builder: HTMaterialRegistry.Builder) {}
-
-        // fun registerMaterialContent(builder: HTMaterialContentRegistry.Builder) {}
 
         fun afterMaterialRegistration(instance: HTMaterialsAPI, isClient: Boolean) {}
 

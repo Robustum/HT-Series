@@ -1,8 +1,8 @@
 package io.github.hiiragi283.material.common.item
 
-import io.github.hiiragi283.api.item.HTItemSettings
 import io.github.hiiragi283.material.common.screen.MaterialDictionaryScreenHandler
 import io.github.hiiragi283.material.impl.HTMaterialsAPIImpl
+import net.fabricmc.fabric.api.item.v1.FabricItemSettings
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
@@ -14,7 +14,7 @@ import net.minecraft.util.registry.Registry
 import net.minecraft.world.World
 
 object MaterialDictionaryItem : Item(
-    HTItemSettings()
+    FabricItemSettings()
         .group(HTMaterialsAPIImpl.itemGroup)
         .rarity(Rarity.EPIC),
 ) {

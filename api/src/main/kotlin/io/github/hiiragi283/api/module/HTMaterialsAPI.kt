@@ -9,11 +9,7 @@ import io.github.hiiragi283.api.item.shape.HTShapeRegistry
 import io.github.hiiragi283.api.item.shape.HTShapedMaterial
 import io.github.hiiragi283.api.material.HTMaterialRegistry
 import io.github.hiiragi283.api.material.content.HTMaterialContentManager
-import net.minecraft.block.Block
-import net.minecraft.item.Item
 import net.minecraft.item.ItemGroup
-import net.minecraft.util.registry.Registry
-import net.minecraft.util.registry.RegistryKey
 
 interface HTMaterialsAPI {
     val itemGroup: ItemGroup
@@ -38,19 +34,5 @@ interface HTMaterialsAPI {
                 HTShapedMaterial(materialKey, shapeKey)
             }.forEach { runCatchAndLog { action(it) } }
         }
-    }
-
-    object RegistryKeys {
-        @JvmField
-        val ICON: RegistryKey<Item> =
-            RegistryKey.of(Registry.ITEM_KEY, HTModuleType.MATERIAL.id("icon"))
-
-        @JvmField
-        val DICTIONARY: RegistryKey<Item> =
-            RegistryKey.of(Registry.ITEM_KEY, HTModuleType.MATERIAL.id("material_dictionary"))
-
-        @JvmField
-        val LIBRARY: RegistryKey<Block> =
-            RegistryKey.of(Registry.BLOCK_KEY, HTModuleType.MATERIAL.id("material_library"))
     }
 }

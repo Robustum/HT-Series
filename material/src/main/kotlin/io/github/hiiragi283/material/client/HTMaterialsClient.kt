@@ -1,8 +1,6 @@
 package io.github.hiiragi283.material.client
 
-import io.github.hiiragi283.api.extension.HTColor
-import io.github.hiiragi283.api.extension.singleBlockStateFunction
-import io.github.hiiragi283.api.extension.useOuterTransaction
+import io.github.hiiragi283.api.extension.*
 import io.github.hiiragi283.api.fluid.HTMaterialFluidVariantRenderHandler
 import io.github.hiiragi283.api.fluid.HTSimpleFluidRenderHandler
 import io.github.hiiragi283.api.fluid.phase.HTFluidPhase
@@ -36,7 +34,6 @@ import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView
-import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.block.Block
 import net.minecraft.client.color.block.BlockColorProvider
 import net.minecraft.client.color.item.ItemColorProvider
@@ -46,12 +43,7 @@ import net.minecraft.fluid.Fluid
 import net.minecraft.item.Item
 import net.minecraft.item.ItemConvertible
 import net.minecraft.item.ItemStack
-import net.minecraft.state.property.Properties
-import net.minecraft.tag.ItemTags
-import net.minecraft.text.LiteralText
 import net.minecraft.text.Text
-import net.minecraft.util.Identifier
-import net.minecraft.util.math.Direction
 
 @Environment(EnvType.CLIENT)
 object HTMaterialsClient : ClientModInitializer {
@@ -72,26 +64,7 @@ object HTMaterialsClient : ClientModInitializer {
 
     private fun registerResource() {
         HTRuntimeClientPack.addBlockState(HTMaterialLibraryBlock) { block ->
-            VariantsBlockStateSupplier.create(
-                block,
-                BlockStateVariant.create()
-                    .put(VariantSettings.MODEL, ModelIds.getBlockModelId(block)),
-            ).coordinate(
-                BlockStateVariantMap.create(Properties.HORIZONTAL_FACING)
-                    .register(
-                        Direction.EAST,
-                        BlockStateVariant.create().put(VariantSettings.Y, VariantSettings.Rotation.R90),
-                    )
-                    .register(
-                        Direction.SOUTH,
-                        BlockStateVariant.create().put(VariantSettings.Y, VariantSettings.Rotation.R180),
-                    )
-                    .register(
-                        Direction.WEST,
-                        BlockStateVariant.create().put(VariantSettings.Y, VariantSettings.Rotation.R270),
-                    )
-                    .register(Direction.NORTH, BlockStateVariant.create()),
-            )
+            createSingleBlockState(block).horizontalCoordinate()
         }
         HTRuntimeClientPack.addItemModel(HTMaterialLibraryBlock.asItem()) { builder, _ ->
             builder.parentId = ModelIds.getBlockModelId(HTMaterialLibraryBlock)
@@ -198,12 +171,6 @@ object HTMaterialsClient : ClientModInitializer {
                 .map { HTMaterialTooltipContext(it.materialKey, it.material, it.phase) }
                 .forEach(::add)
         }.forEach { it.appendTooltips(lines) }
-        // Tag tooltips (only dev)
-        if (FabricLoader.getInstance().isDevelopmentEnvironment) {
-            ItemTags.getTagGroup().getTagsFor(stack.item).forEach { id: Identifier ->
-                lines.add(LiteralText(id.toString()))
-            }
-        }
     }
 
     @Suppress("UnstableApiUsage")

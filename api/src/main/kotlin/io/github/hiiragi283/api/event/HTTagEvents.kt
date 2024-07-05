@@ -54,7 +54,7 @@ object HTTagEvents {
             }
 
             fun add(tag: Tag<T>, vararg obj: T): Handler<T> = apply {
-                val builder = getOrCreate(tag) ?: return@apply
+                val builder: Tag.Builder = getOrCreate(tag) ?: return@apply
                 obj.forEach { builder.add(mapper(it), HTModuleType.API.modName) }
             }
         }

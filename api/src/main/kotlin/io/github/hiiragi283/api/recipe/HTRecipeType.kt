@@ -12,11 +12,13 @@ import net.minecraft.util.Identifier
 import net.minecraft.util.JsonHelper
 import net.minecraft.util.registry.Registry
 
-class HTRecipeType(val typeId: Identifier, val icon: () -> ItemStack) :
-    RecipeType<HTRecipe>,
-    RecipeSerializer<HTRecipe> {
+interface HTRecipeType : RecipeType<HTRecipe>, RecipeSerializer<HTRecipe> {
+    val name: String
+
+    fun icon(): ItemStack
+
     override fun read(id: Identifier, json: JsonObject): HTRecipe {
-        val typeName = JsonHelper.getString(json, "type")
+        val typeName: String = JsonHelper.getString(json, "type")
         val type: HTRecipeType = typeName
             .let(::Identifier)
             .let(Registry.RECIPE_SERIALIZER::get)
@@ -45,6 +47,4 @@ class HTRecipeType(val typeId: Identifier, val icon: () -> ItemStack) :
     override fun write(buf: PacketByteBuf, recipe: HTRecipe) {
         TODO("Not yet implemented")
     }
-
-    override fun toString(): String = typeId.toString()
 }

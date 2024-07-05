@@ -3,7 +3,9 @@ package io.github.hiiragi283.material.common
 import com.google.common.collect.HashBasedTable
 import com.google.common.collect.Table
 import io.github.hiiragi283.api.event.HTTagEvents
-import io.github.hiiragi283.api.extension.*
+import io.github.hiiragi283.api.extension.createBlockItem
+import io.github.hiiragi283.api.extension.createItem
+import io.github.hiiragi283.api.extension.dropStackAt
 import io.github.hiiragi283.api.fluid.HTVirtualFluid
 import io.github.hiiragi283.api.fluid.phase.HTFluidPhase
 import io.github.hiiragi283.api.fluid.phase.HTMaterialFluidManager
@@ -20,19 +22,19 @@ import io.github.hiiragi283.api.material.property.HTMaterialProperties
 import io.github.hiiragi283.api.module.*
 import io.github.hiiragi283.api.property.HTPropertyHolder
 import io.github.hiiragi283.api.recipe.HTGrindingRecipe
+import io.github.hiiragi283.api.recipe.builder.HTShapedRecipeBuilder
+import io.github.hiiragi283.api.recipe.builder.HTShapelessRecipeBuilder
 import io.github.hiiragi283.api.resource.HTRuntimeDataRegistry
-import io.github.hiiragi283.api.resource.recipe.HTShapedRecipeBuilder
-import io.github.hiiragi283.api.resource.recipe.HTShapelessRecipeBuilder
 import io.github.hiiragi283.material.common.block.HTMaterialLibraryBlock
 import io.github.hiiragi283.material.common.item.MaterialDictionaryItem
 import io.github.hiiragi283.material.common.screen.MaterialDictionaryScreenHandler
 import io.github.hiiragi283.material.impl.HTMaterialsAPIImpl
 import net.fabricmc.api.DedicatedServerModInitializer
 import net.fabricmc.api.ModInitializer
-import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder
 import net.fabricmc.fabric.api.event.player.UseBlockCallback
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry
+import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags
 import net.minecraft.block.Block
 import net.minecraft.block.Blocks
 import net.minecraft.entity.player.PlayerEntity
@@ -100,23 +102,21 @@ object HTMaterials : ModInitializer, DedicatedServerModInitializer {
     }
 
     private fun initEntries() {
-        // ItemGroup
-        HTMaterialsAPIImpl.itemGroup = FabricItemGroupBuilder.build(
-            HTModuleType.MATERIAL.id("material"),
-        ) { HTMaterialsAPIImpl.iconItem.defaultStack }
-
         // Item
-        HTMaterialsAPIImpl.iconItem = Registry.ITEM.register(
-            HTMaterialsAPI.RegistryKeys.ICON,
+        HTMaterialsAPIImpl.iconItem = Registry.register(
+            Registry.ITEM,
+            HTModuleType.MATERIAL.id("icon"),
             createItem { group(HTApiHolder.Material.apiInstance.itemGroup).rarity(Rarity.EPIC) },
         )
-        HTMaterialsAPIImpl.dictionaryItem = Registry.ITEM.register(
-            HTMaterialsAPI.RegistryKeys.DICTIONARY,
+        HTMaterialsAPIImpl.dictionaryItem = Registry.register(
+            Registry.ITEM,
+            HTModuleType.MATERIAL.id("material_dictionary"),
             MaterialDictionaryItem,
         )
         // Block
-        HTMaterialsAPIImpl.libraryBlock = Registry.BLOCK.register(
-            HTMaterialsAPI.RegistryKeys.LIBRARY,
+        HTMaterialsAPIImpl.libraryBlock = Registry.register(
+            Registry.BLOCK,
+            HTModuleType.MATERIAL.id("material_library"),
             HTMaterialLibraryBlock,
         )
         Registry.register(
@@ -164,9 +164,9 @@ object HTMaterials : ModInitializer, DedicatedServerModInitializer {
     private fun registerMaterialStorageBlocks(materialApi: HTMaterialsAPI, builder: HTMaterialContentGroup.Builder<HTShapeKey, Block>) {
         materialApi.materialRegistry.forEach { materialKey, material ->
             material[HTMaterialProperties.STORAGE]?.let { property: HTMaterialStorageContent ->
-                val block = property.block
-                val shapeKey = HTShapeKeys.BLOCK
-                val shape = shapeKey.get()
+                val block: Block = property.block
+                val shapeKey: HTShapeKey = HTShapeKeys.BLOCK
+                val shape: HTShape = shapeKey.get()
                 // Register Block
                 builder.add(
                     materialKey,
@@ -268,6 +268,7 @@ object HTMaterials : ModInitializer, DedicatedServerModInitializer {
                     handler.add(shapedMaterial.materialKey, shapedMaterial.shape, item)
                 }
             }
+            handler.add(FabricToolTags.AXES, Items.GLASS_BOTTLE)
         }
 
         UseBlockCallback.EVENT.register { player: PlayerEntity, world: World, hand: Hand, result: BlockHitResult ->

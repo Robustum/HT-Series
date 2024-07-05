@@ -16,7 +16,7 @@ class HTMaterialDisplay(private val materialKey: HTMaterialKey) : RecipeDisplay 
     val entries: List<EntryStack> = buildList {
         // Fluid Entries
         HTFluidPhase.entries.forEach { phase ->
-            val phasedMaterial: HTPhasedMaterial = HTPhasedMaterial(materialKey, phase)
+            val phasedMaterial = HTPhasedMaterial(materialKey, phase)
             HTApiHolder.Material.apiInstance.materialFluidManager[phasedMaterial]
                 .map { fluid ->
                     EntryStack.create(fluid).setting(

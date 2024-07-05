@@ -1,6 +1,9 @@
 package io.github.hiiragi283.api.compat.rei
 
 import io.github.hiiragi283.api.extension.HTColor
+import io.github.hiiragi283.api.extension.component1
+import io.github.hiiragi283.api.extension.component2
+import io.github.hiiragi283.api.extension.component3
 import io.github.hiiragi283.api.material.HTMaterialKey
 import io.github.hiiragi283.api.material.HTMaterialTooltipContext
 import io.github.hiiragi283.api.material.property.HTMaterialProperties
@@ -75,16 +78,14 @@ data class HTMaterialEntryStack(
 
     override fun equalsIgnoreTags(stack: EntryStack): Boolean = equalsAll(stack)
 
-    override fun equalsIgnoreAmount(stack: EntryStack): Boolean = if (stack.type != EntryStack.Type.RENDER) {
-        false
-    } else {
-        (stack as? HTMaterialEntryStack)?.materialKey == materialKey
+    override fun equalsIgnoreAmount(stack: EntryStack): Boolean = when {
+        stack.type != EntryStack.Type.RENDER -> false
+        else -> (stack as? HTMaterialEntryStack)?.materialKey == materialKey
     }
 
-    override fun equalsAll(stack: EntryStack): Boolean = if (stack.type != EntryStack.Type.RENDER) {
-        false
-    } else {
-        (stack as? HTMaterialEntryStack)?.materialKey == materialKey &&
+    override fun equalsAll(stack: EntryStack): Boolean = when {
+        stack.type != EntryStack.Type.RENDER -> false
+        else -> (stack as? HTMaterialEntryStack)?.materialKey == materialKey &&
             (
                 amount == IGNORE_AMOUNT ||
                     stack.accurateAmount == IGNORE_AMOUNT ||
@@ -92,10 +93,9 @@ data class HTMaterialEntryStack(
             )
     }
 
-    override fun getTooltip(mouse: Point): Tooltip? = if (!get(EntryStack.Settings.TOOLTIP_ENABLED).get() || isEmpty) {
-        null
-    } else {
-        Tooltip.create(
+    override fun getTooltip(mouse: Point): Tooltip? = when {
+        !get(EntryStack.Settings.TOOLTIP_ENABLED).get() || isEmpty -> null
+        else -> Tooltip.create(
             buildList {
                 add(asFormattedText())
                 if (!amount.isLessThan(Fraction.empty()) && amount != IGNORE_AMOUNT) {
@@ -125,9 +125,7 @@ data class HTMaterialEntryStack(
             .apply(Identifier("block/white_concrete"))
         val color: Color = material.getOrDefault(HTMaterialProperties.COLOR, HTColor.WHITE)
         val alpha = 255
-        val red: Int = color.red
-        val green: Int = color.green
-        val blue: Int = color.blue
+        val (red: Int, green: Int, blue: Int) = color
         MinecraftClient.getInstance().textureManager.bindTexture(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE)
         val tessellator: Tessellator = Tessellator.getInstance()
         val buffer: BufferBuilder = tessellator.buffer

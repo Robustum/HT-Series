@@ -1,5 +1,6 @@
 package io.github.hiiragi283.api.resource
 
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
@@ -7,19 +8,22 @@ import io.github.hiiragi283.api.extension.addProperty
 import io.github.hiiragi283.api.extension.buildJson
 import io.github.hiiragi283.api.extension.toJsonArray
 import io.github.hiiragi283.api.extension.toJsonObject
+import io.github.hiiragi283.mixin.ModelAccessor
 import net.minecraft.block.Block
 import net.minecraft.client.render.model.json.JsonUnbakedModel
 import net.minecraft.client.render.model.json.ModelElement
 import net.minecraft.client.render.model.json.ModelOverride
 import net.minecraft.client.render.model.json.ModelTransformation
+import net.minecraft.data.client.model.Model
 import net.minecraft.data.client.model.ModelIds
+import net.minecraft.data.client.model.TextureKey
 import net.minecraft.item.BlockItem
 import net.minecraft.item.Item
 import net.minecraft.util.Identifier
 
 class HTModelJsonBuilder {
     companion object {
-        private val GSON = GsonBuilder().setPrettyPrinting().create()
+        private val GSON: Gson = GsonBuilder().setPrettyPrinting().create()
 
         @JvmStatic
         fun simpleItemModel(builder: HTModelJsonBuilder, item: Item) {
@@ -53,15 +57,27 @@ class HTModelJsonBuilder {
     var transformation: ModelTransformation? = null
     var overrides: List<ModelOverride>? = null
 
-    fun addTexture(key: String, texId: String) {
+    fun setParent(model: Model): HTModelJsonBuilder = apply {
+        (model as ModelAccessor).parent.ifPresent { parentId = it }
+    }
+
+    fun addTexture(textureKey: TextureKey, texId: String): HTModelJsonBuilder = apply {
+        addTexture(textureKey, Identifier(texId))
+    }
+
+    fun addTexture(textureKey: TextureKey, texId: Identifier): HTModelJsonBuilder = apply {
+        addTexture(textureKey.name, texId)
+    }
+
+    fun addTexture(key: String, texId: String): HTModelJsonBuilder = apply {
         addTexture(key, Identifier(texId))
     }
 
-    fun addTexture(key: String, texId: Identifier) {
+    fun addTexture(key: String, texId: Identifier): HTModelJsonBuilder = apply {
         textureMap[key] = texId
     }
 
-    fun removeTexture(key: String) {
+    fun removeTexture(key: String): HTModelJsonBuilder = apply {
         textureMap.remove(key)
     }
 

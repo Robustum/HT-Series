@@ -17,8 +17,16 @@ import io.github.hiiragi283.api.storage.HTSingleVariantStorage
 import io.github.hiiragi283.api.storage.HTSlottedStorage
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.api.ModInitializer
+import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant
+import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.client.MinecraftClient
+import net.minecraft.client.item.TooltipContext
+import net.minecraft.item.ItemStack
+import net.minecraft.tag.ItemTags
+import net.minecraft.text.LiteralText
+import net.minecraft.text.Text
+import net.minecraft.util.Formatting
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.registry.Registry
@@ -71,6 +79,15 @@ object HTAPI : ModInitializer, ClientModInitializer {
         (MinecraftClient.getInstance().resourcePackManager as MutableResourcePackManager)
             .`ht_materials$addPackProvider`(HTRuntimeClientPack.Provider)
         HTLogger.log { it.info("HT Runtime Resource Pack registered!") }
+
+        ItemTooltipCallback.EVENT.register { stack: ItemStack, context: TooltipContext, lines: MutableList<Text> ->
+            // Tag tooltips (only dev)
+            if (FabricLoader.getInstance().isDevelopmentEnvironment) {
+                ItemTags.getTagGroup().getTagsFor(stack.item).forEach { id: Identifier ->
+                    lines.add(LiteralText(id.toString()).formatted(Formatting.DARK_GRAY))
+                }
+            }
+        }
         HTLogger.log { it.info("HT API Client Initialized!") }
     }
 

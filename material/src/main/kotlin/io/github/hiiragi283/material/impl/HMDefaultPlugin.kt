@@ -19,10 +19,10 @@ import io.github.hiiragi283.api.module.HTModuleType
 import io.github.hiiragi283.api.module.HTPlugin
 import io.github.hiiragi283.api.property.HTPropertyHolder
 import io.github.hiiragi283.api.recipe.HTGrindingRecipe
+import io.github.hiiragi283.api.recipe.builder.HTCookingRecipeBuilder
+import io.github.hiiragi283.api.recipe.builder.HTShapedRecipeBuilder
+import io.github.hiiragi283.api.recipe.builder.HTShapelessRecipeBuilder
 import io.github.hiiragi283.api.resource.HTRuntimeDataRegistry
-import io.github.hiiragi283.api.resource.recipe.HTCookingRecipeBuilder
-import io.github.hiiragi283.api.resource.recipe.HTShapedRecipeBuilder
-import io.github.hiiragi283.api.resource.recipe.HTShapelessRecipeBuilder
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications
 import net.fabricmc.fabric.api.registry.FuelRegistry
 import net.minecraft.block.Block

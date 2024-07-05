@@ -1,5 +1,6 @@
 package io.github.hiiragi283.material.compat.rei
 
+import io.github.hiiragi283.api.extension.buildDisplay
 import me.shedaniel.math.Point
 import me.shedaniel.math.Rectangle
 import me.shedaniel.rei.api.EntryStack
@@ -19,22 +20,22 @@ object HTGrindingCategory : RecipeCategory<HTGrindingDisplay> {
 
     override fun getCategoryName(): String = I18n.translate("category.ht_materials.grinding")
 
-    override fun setupDisplay(recipeDisplay: HTGrindingDisplay, bounds: Rectangle): List<Widget> = buildList {
-        val startPoint = Point(bounds.centerX - 41, bounds.centerY - 13)
-        add(Widgets.createRecipeBase(bounds))
-        add(Widgets.createArrow(Point(startPoint.x + 27, startPoint.y + 4)))
-        add(Widgets.createResultSlotBackground(Point(startPoint.x + 61, startPoint.y + 5)))
-        add(
-            Widgets.createSlot(Point(startPoint.x + 4, startPoint.y + 5))
-                .entries(recipeDisplay.inputEntries.getOrNull(0) ?: listOf()).markInput(),
-        )
-        add(
-            Widgets.createSlot(Point(startPoint.x + 61, startPoint.y + 5))
-                .entries(recipeDisplay.resultingEntries.getOrNull(0) ?: listOf())
-                .disableBackground()
-                .markOutput(),
-        )
-    }
+    override fun setupDisplay(recipeDisplay: HTGrindingDisplay, bounds: Rectangle): List<Widget> =
+        buildDisplay(Point(bounds.centerX - 41, bounds.centerY - 13)) { list, point ->
+            list.add(Widgets.createRecipeBase(bounds))
+            list.add(Widgets.createArrow(Point(point.x + 27, point.y + 4)))
+            list.add(Widgets.createResultSlotBackground(Point(point.x + 61, point.y + 5)))
+            list.add(
+                Widgets.createSlot(Point(point.x + 4, point.y + 5))
+                    .entries(recipeDisplay.inputEntries.getOrNull(0) ?: listOf()).markInput(),
+            )
+            list.add(
+                Widgets.createSlot(Point(point.x + 61, point.y + 5))
+                    .entries(recipeDisplay.resultingEntries.getOrNull(0) ?: listOf())
+                    .disableBackground()
+                    .markOutput(),
+            )
+        }
 
     override fun getDisplayHeight(): Int = 36
 }

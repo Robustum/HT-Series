@@ -13,5 +13,7 @@ open class HTSimpleBlockWithEntity(
         { _ -> blockEntityConstructor() },
     )
 
+    // constructor(settings: Settings, blockEntityType: () -> HTBlockEntityType<*>) : this(settings, blockEntityType()::instantiate)
+
     override fun createBlockEntity(world: BlockView): BlockEntity? = blockEntityConstructor(world)
 }

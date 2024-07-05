@@ -1,4 +1,4 @@
-package io.github.hiiragi283.api.extension
+package io.github.hiiragi283.api.recipe
 
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment

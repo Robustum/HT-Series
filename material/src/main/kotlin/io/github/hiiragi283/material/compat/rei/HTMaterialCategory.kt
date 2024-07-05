@@ -26,9 +26,8 @@ object HTMaterialCategory : RecipeCategory<HTMaterialDisplay> {
 
     override fun getCategoryName(): String = HTModuleType.MATERIAL.modName
 
-    override fun setupDisplay(display: HTMaterialDisplay, bounds: Rectangle): List<Widget> {
-        val widgets: MutableList<Widget> = mutableListOf()
-        widgets += Widgets
+    override fun setupDisplay(display: HTMaterialDisplay, bounds: Rectangle): List<Widget> = buildList {
+        this += Widgets
             .createSlot(Point(bounds.centerX - 8, bounds.y + 3))
             .entry(display.icon)
         val rectangle = Rectangle(
@@ -37,8 +36,8 @@ object HTMaterialCategory : RecipeCategory<HTMaterialDisplay> {
             bounds.width + 2,
             bounds.height - 28,
         )
-        widgets += Widgets.createSlotBase(rectangle)
-        widgets += HTScrollableSlotsWidget(
+        this += Widgets.createSlotBase(rectangle)
+        this += HTScrollableSlotsWidget(
             rectangle,
             display.entries.map { entry: EntryStack ->
                 Widgets.createSlot(Point(0, 0))
@@ -46,7 +45,6 @@ object HTMaterialCategory : RecipeCategory<HTMaterialDisplay> {
                     .entry(entry)
             },
         )
-        return widgets
     }
 
     override fun getDisplayHeight(): Int = 140
@@ -66,21 +64,21 @@ object HTMaterialCategory : RecipeCategory<HTMaterialDisplay> {
             override fun getMaxScrollHeight(): Int = MathHelper.ceil(widgets.size / 8f) * 18
         }
 
-        override fun mouseScrolled(double1: Double, double2: Double, double3: Double): Boolean = if (containsMouse(double1, double2)) {
-            scrolling.offset(ClothConfigInitializer.getScrollStep() * -double3, true)
-            true
-        } else {
-            false
+        override fun mouseScrolled(double1: Double, double2: Double, double3: Double): Boolean = when {
+            containsMouse(double1, double2) -> {
+                scrolling.offset(ClothConfigInitializer.getScrollStep() * -double3, true)
+                true
+            }
+
+            else -> false
         }
 
         override fun getBounds(): Rectangle = bounds
 
-        override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean =
-            if (scrolling.updateDraggingState(mouseX, mouseY, button)) {
-                true
-            } else {
-                super.mouseClicked(mouseX, mouseY, button)
-            }
+        override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean = when {
+            scrolling.updateDraggingState(mouseX, mouseY, button) -> true
+            else -> super.mouseClicked(mouseX, mouseY, button)
+        }
 
         override fun mouseDragged(
             mouseX: Double,
@@ -88,10 +86,9 @@ object HTMaterialCategory : RecipeCategory<HTMaterialDisplay> {
             button: Int,
             deltaX: Double,
             deltaY: Double,
-        ): Boolean = if (scrolling.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)) {
-            true
-        } else {
-            super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)
+        ): Boolean = when {
+            scrolling.mouseDragged(mouseX, mouseY, button, deltaX, deltaY) -> true
+            else -> super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)
         }
 
         override fun render(
@@ -106,12 +103,13 @@ object HTMaterialCategory : RecipeCategory<HTMaterialDisplay> {
                 for (x: Int in 0..7) {
                     val index: Int = y * 8 + x
                     if (widgets.size <= index) break
-                    val widget = widgets[index]
-                    widget.bounds.setLocation(
-                        bounds.x + 1 + x * 18,
-                        bounds.y + 1 + y * 18 - scrolling.scrollAmount.toInt(),
-                    )
-                    widget.render(matrices, mouseX, mouseY, delta)
+                    widgets[index].apply {
+                        this.bounds.setLocation(
+                            this@HTScrollableSlotsWidget.bounds.x + 1 + x * 18,
+                            this@HTScrollableSlotsWidget.bounds.y + 1 + y * 18 - scrolling.scrollAmount.toInt(),
+                        )
+                        render(matrices, mouseX, mouseY, delta)
+                    }
                 }
             }
             ScissorsHandler.INSTANCE.removeLastScissor()

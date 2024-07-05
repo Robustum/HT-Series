@@ -9,9 +9,9 @@ import io.github.hiiragi283.api.material.type.HTBlockProperty
 import io.github.hiiragi283.api.module.HTApiHolder
 import io.github.hiiragi283.api.module.HTModuleType
 import io.github.hiiragi283.api.property.HTPropertyHolder
+import io.github.hiiragi283.api.recipe.builder.HTShapedRecipeBuilder
+import io.github.hiiragi283.api.recipe.builder.HTShapelessRecipeBuilder
 import io.github.hiiragi283.api.resource.HTModelJsonBuilder
-import io.github.hiiragi283.api.resource.recipe.HTShapedRecipeBuilder
-import io.github.hiiragi283.api.resource.recipe.HTShapelessRecipeBuilder
 import net.fabricmc.fabric.api.`object`.builder.v1.block.FabricBlockSettings
 import net.minecraft.block.Block
 import net.minecraft.data.client.model.BlockStateSupplier
