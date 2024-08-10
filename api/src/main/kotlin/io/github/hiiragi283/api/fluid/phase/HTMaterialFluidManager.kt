@@ -18,7 +18,7 @@ class HTMaterialFluidManager(
 ) {
     companion object {
         @JvmField
-        val EMPTY = HTMaterialFluidManager(mapOf(), HashBasedTable.create())
+        val EMPTY = HTMaterialFluidManager(emptyMap(), HashBasedTable.create())
     }
 
     //    Fluid -> HTPhasedMaterial    //
@@ -48,7 +48,7 @@ class HTMaterialFluidManager(
 
     operator fun get(phasedMaterial: HTPhasedMaterial): Set<Fluid> = get(phasedMaterial.materialKey, phasedMaterial.phase)
 
-    operator fun get(materialKey: HTMaterialKey, phase: HTFluidPhase): Set<Fluid> = phasedToFluids.get(materialKey, phase) ?: setOf()
+    operator fun get(materialKey: HTMaterialKey, phase: HTFluidPhase): Set<Fluid> = phasedToFluids.get(materialKey, phase) ?: emptySet()
 
     operator fun contains(phasedMaterial: HTPhasedMaterial): Boolean = contains(phasedMaterial.materialKey, phasedMaterial.phase)
 

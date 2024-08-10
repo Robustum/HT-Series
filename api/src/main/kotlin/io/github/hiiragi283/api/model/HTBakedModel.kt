@@ -28,7 +28,7 @@ abstract class HTBakedModel : UnbakedModel, BakedModel, FabricBakedModel {
 
     //    UnbakedModel    //
 
-    override fun getModelDependencies(): Collection<Identifier> = listOf()
+    override fun getModelDependencies(): Collection<Identifier> = emptyList()
 
     override fun getTextureDependencies(
         unbakedModelGetter: Function<Identifier, UnbakedModel>,
@@ -37,7 +37,7 @@ abstract class HTBakedModel : UnbakedModel, BakedModel, FabricBakedModel {
 
     //    BakedModel    //
 
-    override fun getQuads(state: BlockState?, face: Direction?, random: Random): List<BakedQuad> = listOf()
+    override fun getQuads(state: BlockState?, face: Direction?, random: Random): List<BakedQuad> = emptyList()
 
     override fun useAmbientOcclusion(): Boolean = true
 

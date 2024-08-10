@@ -95,7 +95,7 @@ class HTFluidWidget(
         @JvmField
         val PACKET_CODEC: HTPacketCodec<Context> = HTPacketCodec.createSimple(
             HTModuleType.API.id("fluid_widget_sync"),
-            { buf, context ->
+            { context, buf ->
                 buf.writeIdentifier(context.worldId)
                 buf.writeBlockPos(context.pos)
                 context.variant.toPacket(buf)

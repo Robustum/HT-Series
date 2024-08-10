@@ -55,6 +55,10 @@ class HTMaterialRegistry(private val biMap: BiMap<HTMaterialKey, HTPropertyHolde
                 .apply { key.validated = true }
         }
 
+        fun create(key: HTMaterialKey, type: HTMaterialType, builderAction: HTMaterialBuilder.() -> Unit) {
+            create(key, type).apply(builderAction)
+        }
+
         fun createGas(key: HTMaterialKey) = create(key, HTMaterialType.Fluid.GAS)
 
         fun createGem(key: HTMaterialKey, gemType: HTMaterialType.Gem) = create(key, gemType)

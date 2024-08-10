@@ -7,11 +7,16 @@ import io.github.hiiragi283.api.module.HTLogger
 import io.github.hiiragi283.api.tag.HTBlockTags
 import io.github.hiiragi283.engineering.common.init.HEInit
 import net.fabricmc.api.ModInitializer
+import net.fabricmc.fabric.api.loot.v1.event.LootTableLoadingCallback
 import net.minecraft.block.Blocks
 
 object HTEngineering : ModInitializer {
     override fun onInitialize() {
         HEInit
+
+        LootTableLoadingCallback.EVENT.register { resourceManager, lootManager, id, supplier, setter ->
+
+        }
 
         HTTagEvents.BLOCK.register { handler ->
             // Energy - Heat

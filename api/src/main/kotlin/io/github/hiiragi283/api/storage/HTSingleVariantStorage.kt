@@ -12,19 +12,25 @@ abstract class HTSingleVariantStorage<T : TransferVariant<*>>(
 ) : SingleVariantStorage<T>() {
     override fun getCapacity(variant: T): Long = capacity
 
+    override fun canInsert(variant: T): Boolean = ioType.canInsert
+
+    override fun canExtract(variant: T): Boolean = ioType.canExtract
+
     override fun supportsInsertion(): Boolean = ioType.canInsert
 
     override fun supportsExtraction(): Boolean = ioType.canExtract
 
-    class Item(ioType: HTStorageIO, capacity: Long) : HTSingleVariantStorage<ItemVariant>(ioType, capacity) {
-        override fun getBlankVariant(): ItemVariant = ItemVariant.blank()
-    }
+    companion object {
+        @JvmStatic
+        fun ofItem(ioType: HTStorageIO, capacity: Long): HTSingleVariantStorage<ItemVariant> =
+            object : HTSingleVariantStorage<ItemVariant>(ioType, capacity) {
+                override fun getBlankVariant(): ItemVariant = ItemVariant.blank()
+            }
 
-    class Fluid(ioType: HTStorageIO, capacity: Long) : HTSingleVariantStorage<FluidVariant>(ioType, capacity) {
-        override fun getBlankVariant(): FluidVariant = FluidVariant.blank()
+        @JvmStatic
+        fun ofFluid(ioType: HTStorageIO, capacity: Long): HTSingleVariantStorage<FluidVariant> =
+            object : HTSingleVariantStorage<FluidVariant>(ioType, capacity) {
+                override fun getBlankVariant(): FluidVariant = FluidVariant.blank()
+            }
     }
-
-    /*class Material(ioType: HTStorageIO, capacity: Long) : HTSingleVariantStorage<HTMaterialVariant>(ioType, capacity) {
-        override fun getBlankVariant(): HTMaterialVariant = HTMaterialVariant.blank()
-    }*/
 }

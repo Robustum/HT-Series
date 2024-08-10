@@ -171,10 +171,9 @@ object HTRuntimeClientPack : ResourcePack {
         prefix: String,
         maxDepth: Int,
         pathFilter: Predicate<String>,
-    ): Collection<Identifier> = if (namespace !in domains) {
-        setOf()
-    } else {
-        getData(type).keys
+    ): Collection<Identifier> = when (namespace) {
+        !in domains -> emptySet()
+        else -> getData(type).keys
             .filter { id: Identifier -> id.path.startsWith(prefix) }
             .filter { id: Identifier -> pathFilter.test(id.path) }
     }

@@ -7,111 +7,111 @@ import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant
 import net.fabricmc.fabric.api.transfer.v1.storage.StoragePreconditions
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView
 import net.fabricmc.fabric.api.transfer.v1.storage.TransferVariant
-import net.fabricmc.fabric.api.transfer.v1.storage.base.ResourceAmount
-import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage
+import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleVariantStorage
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext
+import net.minecraft.fluid.Fluid
+import net.minecraft.item.Item
 import net.minecraft.nbt.NbtCompound
-import net.minecraft.nbt.NbtElement
 import net.minecraft.nbt.NbtList
-import net.minecraft.nbt.NbtOps
 import net.minecraft.util.collection.DefaultedList
 import net.minecraft.util.math.Direction
-import java.util.*
 
 @Suppress("UnstableApiUsage")
-class HTSlottedStorage<T : TransferVariant<*>> private constructor(
-    override val slots: List<SingleSlotStorage<T>>,
+class HTSlottedStorage<O : Any, T : TransferVariant<O>> private constructor(
+    override val slots: List<SingleVariantStorage<T>>,
     private val sides: Map<Direction, List<Int>>,
-    private val key: String,
-    private val fromNbt: (NbtCompound) -> T,
-) : SlottedStorage<T, SingleSlotStorage<T>> {
+    private val context: VariantContext<O, T>,
+) : SlottedStorage<T, SingleVariantStorage<T>> {
     companion object {
         @JvmStatic
-        fun <T : TransferVariant<*>> of(
+        fun <O : Any, T : TransferVariant<O>> of(
             builder: HTSidedStorageBuilder,
-            slotBuilder: (HTStorageIO) -> HTSingleVariantStorage<T>,
-            key: String,
-            fromNbt: (NbtCompound) -> T,
-        ): HTSlottedStorage<T> = HTSlottedStorage(builder.ioTypes.map(slotBuilder), builder.sides, key, fromNbt)
+            capacity: Long = 64,
+            slotBuilder: (HTStorageIO, Long) -> HTSingleVariantStorage<T>,
+            context: VariantContext<O, T>,
+        ): HTSlottedStorage<O, T> = HTSlottedStorage(builder.ioTypes.map { slotBuilder(it, capacity) }, builder.sides, context)
 
         @JvmOverloads
         @JvmStatic
-        fun ofItem(builder: HTSidedStorageBuilder, capacity: Long = 64) =
-            of(builder, { HTSingleVariantStorage.Item(it, capacity) }, "ItemStorage", ItemVariant::fromNbt)
+        fun ofItem(builder: HTSidedStorageBuilder, capacity: Long = 64): HTSlottedStorage<Item, ItemVariant> =
+            of(builder, capacity, HTSingleVariantStorage.Companion::ofItem, VariantContext.ITEM)
 
         @JvmOverloads
         @JvmStatic
-        fun ofFluid(builder: HTSidedStorageBuilder, capacity: Long = FluidConstants.BUCKET * 16) =
-            of(builder, { HTSingleVariantStorage.Fluid(it, capacity) }, "FluidStorage", FluidVariant::fromNbt)
-
-        /*@JvmOverloads
-        @JvmStatic
-        fun ofMaterial(builder: HTSidedStorageBuilder, capacity: Long = FluidConstants.BUCKET * 16) =
-            of(
-                builder,
-                { HTSingleVariantStorage.Material(it, capacity) },
-                "MaterialStorage",
-                HTMaterialVariant::fromNbt
-            )*/
+        fun ofFluid(builder: HTSidedStorageBuilder, capacity: Long = FluidConstants.BUCKET * 16): HTSlottedStorage<Fluid, FluidVariant> =
+            of(builder, capacity, HTSingleVariantStorage.Companion::ofFluid, VariantContext.FLUID)
 
         @JvmStatic
-        fun <T : TransferVariant<*>> wrapSided(
-            parent: HTSlottedStorage<T>,
+        fun <O : Any, T : TransferVariant<O>> wrapSided(
+            parent: HTSlottedStorage<O, T>,
             side: Direction?,
-            blank: T,
-            key: String,
-            fromNbt: (NbtCompound) -> T,
-        ): HTSlottedStorage<T> {
+            blankSlotStorage: () -> HTSingleVariantStorage<T>,
+        ): HTSlottedStorage<O, T> {
             if (side == null) return parent
-            val slots: DefaultedList<SingleSlotStorage<T>> = DefaultedList.ofSize(
+            val slots: DefaultedList<SingleVariantStorage<T>> = DefaultedList.ofSize(
                 parent.slotCount,
-                HTBlankSlotStorage(blank),
+                blankSlotStorage(),
             )
-            parent.sides.getOrDefault(side, listOf()).forEach { index: Int ->
+            parent.sides.getOrDefault(side, emptyList()).forEach { index: Int ->
                 slots[index] = parent.slots[index]
             }
-            return HTSlottedStorage(slots, parent.sides, key, fromNbt)
+            return HTSlottedStorage(slots, parent.sides, parent.context)
         }
 
         @JvmStatic
-        fun wrapSidedItem(parent: HTSlottedStorage<ItemVariant>, side: Direction?) =
-            wrapSided(parent, side, ItemVariant.blank(), "ItemStorage", ItemVariant::fromNbt)
+        fun wrapSidedItem(parent: HTSlottedStorage<Item, ItemVariant>, side: Direction?): HTSlottedStorage<Item, ItemVariant> =
+            wrapSided(parent, side) {
+                HTSingleVariantStorage.ofItem(HTStorageIO.INTERNAL, 0)
+            }
 
         @JvmStatic
-        fun wrapSidedFluid(parent: HTSlottedStorage<FluidVariant>, side: Direction?) =
-            wrapSided(parent, side, FluidVariant.blank(), "FluidStorage", FluidVariant::fromNbt)
-
-        /*@JvmStatic
-        fun wrapSidedMaterial(parent: HTSlottedStorage<HTMaterialVariant>, side: Direction?) =
-            wrapSided(parent, side, HTMaterialVariant.blank(), "MaterialStorage", HTMaterialVariant::fromNbt)*/
+        fun wrapSidedFluid(parent: HTSlottedStorage<Fluid, FluidVariant>, side: Direction?): HTSlottedStorage<Fluid, FluidVariant> =
+            wrapSided(parent, side) {
+                HTSingleVariantStorage.ofFluid(HTStorageIO.INTERNAL, 0)
+            }
     }
 
     fun writeNbt(nbt: NbtCompound) {
         /*slots.forEach { view ->
             HTMaterialsAPI.LOGGER.debug("Stored variant; ${view.resource}, amount; ${view.amount}")
         }*/
-        slots
+        nbt.put(
+            context.key,
+            buildNbtList {
+                slots.forEach { slot ->
+                    add(
+                        buildNbt {
+                            slot.writeNbt(context.codec, this)
+                        },
+                    )
+                }
+            },
+        )
+        /*slots
             .map { ResourceAmount(it.resource, it.amount) }
-            .map { resourceAmountCodec(fromNbt).encodeResult(NbtOps.INSTANCE, it) }
+            .map { resourceAmountCodec(codec).encodeResult(NbtOps.INSTANCE, it) }
             .mapNotNull(Result<NbtElement>::getOrNull)
             .toNbtList()
             .takeIf { it.isNotEmpty() }
-            ?.let { nbt.put(key, it) }
+            ?.let { nbt.put(key, it) }*/
     }
 
-    fun readNbt(nbt: NbtCompound, nbtToVariant: (NbtCompound) -> T) {
-        val list: NbtList = nbt.getList(key, 10)
+    fun readNbt(nbt: NbtCompound) {
+        val list: NbtList = nbt.getList(context.key, 10)
         if (list.isEmpty()) return
         (0..<list.size).forEach { index: Int ->
             val nbtIn: NbtCompound = list.getCompound(index)
-            val resourceAmount: ResourceAmount<T> = resourceAmountCodec(fromNbt).decodeResult(NbtOps.INSTANCE, nbtIn)
+            val slot: SingleVariantStorage<T> = getSlot(index)
+            slot.readNbt(context.codec, context.blank, nbtIn)
+
+            /*val resourceAmount: ResourceAmount<T> = resourceAmountCodec(codec).decodeResult(NbtOps.INSTANCE, nbtIn)
                 .getOrThrow()
             val resource: T = resourceAmount.resource()
             val amount: Long = resourceAmount.amount()
             useOuterTransaction { transaction ->
                 getSlot(index).insert(resource, amount, transaction)
                 transaction.commit()
-            }
+            }*/
         }
     }
 
@@ -127,7 +127,7 @@ class HTSlottedStorage<T : TransferVariant<*>> private constructor(
     override fun insert(resource: T, maxAmount: Long, transaction: TransactionContext): Long {
         StoragePreconditions.notBlankNotNegative(resource, maxAmount)
         var amount = 0L
-        for (slot: SingleSlotStorage<T> in slots) {
+        for (slot: SingleVariantStorage<T> in slots) {
             amount += slot.insert(resource, maxAmount - amount, transaction)
             if (amount == maxAmount) break
         }
@@ -144,7 +144,7 @@ class HTSlottedStorage<T : TransferVariant<*>> private constructor(
     override fun extract(resource: T, maxAmount: Long, transaction: TransactionContext): Long {
         StoragePreconditions.notBlankNotNegative(resource, maxAmount)
         var amount = 0L
-        for (slot: SingleSlotStorage<T> in slots) {
+        for (slot: SingleVariantStorage<T> in slots) {
             amount += slot.extract(resource, maxAmount - amount, transaction)
             if (amount == maxAmount) break
         }
@@ -155,7 +155,7 @@ class HTSlottedStorage<T : TransferVariant<*>> private constructor(
 
     override val slotCount: Int = slots.size
 
-    override fun getSlot(slot: Int): SingleSlotStorage<T> = slots[slot]
+    override fun getSlot(slot: Int): SingleVariantStorage<T> = slots[slot]
 
     override fun iterator(): Iterator<StorageView<T>> = slots.iterator()
 }

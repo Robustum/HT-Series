@@ -57,7 +57,7 @@ interface HTResult : Predicate<ItemStack>, UnaryOperator<ItemStack> {
 
             override val packetCodec: HTPacketCodec<ItemImpl> = HTPacketCodec.createSimple(
                 HTModuleType.API.id("result/item"),
-                { buf, ingredient ->
+                { ingredient, buf ->
                     buf.writeVarInt(Registry.ITEM.getRawId(ingredient.item))
                     buf.writeVarInt(ingredient.count)
                 },
@@ -99,7 +99,7 @@ interface HTResult : Predicate<ItemStack>, UnaryOperator<ItemStack> {
 
             override val packetCodec: HTPacketCodec<EnchantImpl> = HTPacketCodec.createSimple(
                 HTModuleType.API.id("result/enchantment"),
-                { buf, ingredient ->
+                { ingredient, buf ->
                     buf.writeVarInt(Registry.ENCHANTMENT.getRawId(ingredient.enchantment))
                     buf.writeVarInt(ingredient.level)
                 },

@@ -2,6 +2,7 @@ package io.github.hiiragi283.material.common
 
 import com.google.common.collect.HashBasedTable
 import com.google.common.collect.Table
+import io.github.hiiragi283.api.event.HTItemEvent
 import io.github.hiiragi283.api.event.HTTagEvents
 import io.github.hiiragi283.api.extension.createBlockItem
 import io.github.hiiragi283.api.extension.createItem
@@ -26,8 +27,8 @@ import io.github.hiiragi283.api.recipe.builder.HTShapedRecipeBuilder
 import io.github.hiiragi283.api.recipe.builder.HTShapelessRecipeBuilder
 import io.github.hiiragi283.api.resource.HTRuntimeDataRegistry
 import io.github.hiiragi283.material.common.block.HTMaterialLibraryBlock
-import io.github.hiiragi283.material.common.item.MaterialDictionaryItem
-import io.github.hiiragi283.material.common.screen.MaterialDictionaryScreenHandler
+import io.github.hiiragi283.material.common.item.HTMaterialDictionaryItem
+import io.github.hiiragi283.material.common.screen.HTMaterialDictionaryScreenHandler
 import io.github.hiiragi283.material.impl.HTMaterialsAPIImpl
 import net.fabricmc.api.DedicatedServerModInitializer
 import net.fabricmc.api.ModInitializer
@@ -61,7 +62,7 @@ import kotlin.collections.set
 import kotlin.jvm.optionals.getOrNull
 
 object HTMaterials : ModInitializer, DedicatedServerModInitializer {
-    lateinit var screenHandlerType: ScreenHandlerType<MaterialDictionaryScreenHandler>
+    lateinit var screenHandlerType: ScreenHandlerType<HTMaterialDictionaryScreenHandler>
     private val settings by lazy { FabricItemSettings().group(HTApiHolder.Material.apiInstance.itemGroup) }
 
     //    Init    //
@@ -111,7 +112,7 @@ object HTMaterials : ModInitializer, DedicatedServerModInitializer {
         HTMaterialsAPIImpl.dictionaryItem = Registry.register(
             Registry.ITEM,
             HTModuleType.MATERIAL.id("material_dictionary"),
-            MaterialDictionaryItem,
+            HTMaterialDictionaryItem,
         )
         // Block
         HTMaterialsAPIImpl.libraryBlock = Registry.register(
@@ -130,7 +131,7 @@ object HTMaterials : ModInitializer, DedicatedServerModInitializer {
         // ScreenHandlerType
         screenHandlerType = ScreenHandlerRegistry.registerSimple(
             HTModuleType.MATERIAL.id("material_dictionary"),
-            ::MaterialDictionaryScreenHandler,
+            ::HTMaterialDictionaryScreenHandler,
         )
 
         Registry.register(
@@ -271,6 +272,13 @@ object HTMaterials : ModInitializer, DedicatedServerModInitializer {
             handler.add(FabricToolTags.AXES, Items.GLASS_BOTTLE)
         }
 
+        HTItemEvent.ENCHANTABILITY.register { stack ->
+            when (stack.item) {
+                Items.GLASS_BOTTLE -> 1
+                else -> null
+            }
+        }
+        
         UseBlockCallback.EVENT.register { player: PlayerEntity, world: World, hand: Hand, result: BlockHitResult ->
             if (hand == Hand.OFF_HAND) return@register ActionResult.PASS
             if (!player.isSneaking) return@register ActionResult.PASS

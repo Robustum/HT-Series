@@ -19,7 +19,6 @@ class HTMachineScreenHandler(
         TYPE,
         syncId,
         playerInventory,
-        context,
         getBlockInventory(context, 5),
         getBlockPropertyDelegate(context, 2),
     ) {

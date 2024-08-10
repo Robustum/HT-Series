@@ -13,11 +13,11 @@ sealed class HTPluginHolder<T : HTPlugin>(type: HTModuleType, clazz: Class<T>) {
         plugins.forEach { runCatchAndLog { action(it) } }
     }
 
-    data object Engineering : HTPluginHolder<HTPlugin.Material>(HTModuleType.ENGINEERING, HTPlugin.Material::class.java)
+    data object Engineering 
 
     data object Material : HTPluginHolder<HTPlugin.Material>(HTModuleType.MATERIAL, HTPlugin.Material::class.java)
 
-    data object Storage : HTPluginHolder<HTPlugin.Material>(HTModuleType.STORAGE, HTPlugin.Material::class.java)
+    data object Storage
 
-    data object Tool : HTPluginHolder<HTPlugin.Material>(HTModuleType.TOOL, HTPlugin.Material::class.java)
+    data object Tool 
 }

@@ -1,6 +1,6 @@
 package io.github.hiiragi283.material.common.item
 
-import io.github.hiiragi283.material.common.screen.MaterialDictionaryScreenHandler
+import io.github.hiiragi283.material.common.screen.HTMaterialDictionaryScreenHandler
 import io.github.hiiragi283.material.impl.HTMaterialsAPIImpl
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings
 import net.minecraft.entity.player.PlayerEntity
@@ -13,7 +13,7 @@ import net.minecraft.util.TypedActionResult
 import net.minecraft.util.registry.Registry
 import net.minecraft.world.World
 
-object MaterialDictionaryItem : Item(
+object HTMaterialDictionaryItem : Item(
     FabricItemSettings()
         .group(HTMaterialsAPIImpl.itemGroup)
         .rarity(Rarity.EPIC),
@@ -23,7 +23,7 @@ object MaterialDictionaryItem : Item(
         if (!world.isClient) {
             user.openHandledScreen(
                 SimpleNamedScreenHandlerFactory({ syncId: Int, _, player: PlayerEntity ->
-                    MaterialDictionaryScreenHandler(syncId, player)
+                    HTMaterialDictionaryScreenHandler(syncId, player)
                 }, name),
             )
             return TypedActionResult.success(stack)

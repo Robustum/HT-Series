@@ -22,7 +22,7 @@ class HTMaterialItemManager(
 ) {
     companion object {
         @JvmField
-        val EMPTY = HTMaterialItemManager(mapOf(), HashBasedTable.create(), setOf())
+        val EMPTY = HTMaterialItemManager(emptyMap(), HashBasedTable.create(), emptySet())
     }
 
     //    Item -> HTShapedMaterial    //
@@ -52,7 +52,7 @@ class HTMaterialItemManager(
         ?.takeUnless(unificationBlacklist::contains)
         ?.let(::get)
         ?.let(::get)
-        ?: setOf()
+        ?: emptySet()
 
     fun getOrEmpty(shapedMaterial: HTShapedMaterial): Item = getOrEmpty(shapedMaterial.materialKey, shapedMaterial.shapeKey)
 
@@ -75,7 +75,7 @@ class HTMaterialItemManager(
 
     operator fun get(shapedMaterial: HTShapedMaterial): Set<Item> = get(shapedMaterial.materialKey, shapedMaterial.shapeKey)
 
-    operator fun get(materialKey: HTMaterialKey, shapeKey: HTShapeKey): Set<Item> = shapedToItems.get(materialKey, shapeKey) ?: setOf()
+    operator fun get(materialKey: HTMaterialKey, shapeKey: HTShapeKey): Set<Item> = shapedToItems.get(materialKey, shapeKey) ?: emptySet()
 
     operator fun contains(shapedMaterial: HTShapedMaterial): Boolean = contains(shapedMaterial.materialKey, shapedMaterial.shapeKey)
 

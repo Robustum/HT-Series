@@ -4,17 +4,24 @@ import io.github.cottonmc.cotton.gui.SyncedGuiDescription
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.Inventory
 import net.minecraft.screen.PropertyDelegate
-import net.minecraft.screen.ScreenHandlerContext
 import net.minecraft.screen.ScreenHandlerType
 
-abstract class HTScreenHandler(
-    type: ScreenHandlerType<*>,
-    syncId: Int,
-    playerInventory: PlayerInventory,
-    context: ScreenHandlerContext = ScreenHandlerContext.EMPTY,
-    blockInventory: Inventory,
-    propertyDelegate: PropertyDelegate,
-) : SyncedGuiDescription(type, syncId, playerInventory, blockInventory, propertyDelegate) {
+abstract class HTScreenHandler : SyncedGuiDescription {
+
+    constructor(
+        type: ScreenHandlerType<*>,
+        syncId: Int,
+        playerInventory: PlayerInventory,
+        blockInventory: Inventory,
+        propertyDelegate: PropertyDelegate
+    ) : super(type, syncId, playerInventory, blockInventory, propertyDelegate)
+
+    constructor(
+        type: ScreenHandlerType<*>, 
+        syncId: Int, 
+        playerInventory: PlayerInventory
+    ) : super(type, syncId, playerInventory)
+    
     /*companion object {
         @JvmStatic
         fun getBlockTank(context: ScreenHandlerContext): HTSlottedStorage<FluidVariant> = getBlockTank(context, 0)

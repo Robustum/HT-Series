@@ -19,6 +19,7 @@ object HTRuntimeDataRegistry {
 
     //    Loot Table    //
 
+    @JvmStatic
     val lootTables: Map<Identifier, LootTable.Builder>
         get() = lootTables1
     private val lootTables1: MutableMap<Identifier, LootTable.Builder> = ConcurrentHashMap()

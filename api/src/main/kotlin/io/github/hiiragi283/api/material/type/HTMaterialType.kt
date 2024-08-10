@@ -35,7 +35,7 @@ sealed interface HTMaterialType {
         override val itemSet: Set<HTShapeKey> = emptySet()
     }
 
-    enum class Gem(val hasOverlay: Boolean) : HTMaterialType, HTBlockProperty {
+    enum class Gem(private val hasOverlay: Boolean) : HTMaterialType, HTBlockProperty {
         AMETHYST(true),
         COAL(false),
         DIAMOND(true),

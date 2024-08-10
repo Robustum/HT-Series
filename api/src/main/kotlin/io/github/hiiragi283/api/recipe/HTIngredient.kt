@@ -59,7 +59,7 @@ interface HTIngredient : Predicate<ItemStack>, Consumer<ItemStack> {
 
             override val packetCodec: HTPacketCodec<ItemImpl> = HTPacketCodec.createSimple(
                 HTModuleType.API.id("ingredient/item"),
-                { buf, ingredient ->
+                { ingredient, buf ->
                     buf.writeVarInt(Registry.ITEM.getRawId(ingredient.item))
                     buf.writeVarInt(ingredient.count)
                 },
@@ -96,7 +96,7 @@ interface HTIngredient : Predicate<ItemStack>, Consumer<ItemStack> {
 
             override val packetCodec: HTPacketCodec<TagImpl> = HTPacketCodec.createSimple(
                 HTModuleType.API.id("ingredient/tag"),
-                { buf, ingredient ->
+                { ingredient, buf ->
                     buf.writeIdentifier(itemTags.getTagId(ingredient.tag))
                     buf.writeVarInt(ingredient.count)
                 },

@@ -15,7 +15,7 @@ class HTSidedStorageBuilder(size: Int) {
         }
     }
 
-    fun getSideSlots(side: Direction): List<Int> = sides.getOrDefault(side, listOf())
+    fun getSideSlots(side: Direction): List<Int> = sides.getOrDefault(side, emptyList())
 
     fun getSideSlotArray(side: Direction): IntArray = getSideSlots(side).toIntArray()
 

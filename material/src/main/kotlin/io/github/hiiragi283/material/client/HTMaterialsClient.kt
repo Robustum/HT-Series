@@ -4,6 +4,7 @@ import io.github.hiiragi283.api.extension.*
 import io.github.hiiragi283.api.fluid.HTMaterialFluidVariantRenderHandler
 import io.github.hiiragi283.api.fluid.HTSimpleFluidRenderHandler
 import io.github.hiiragi283.api.fluid.phase.HTFluidPhase
+import io.github.hiiragi283.api.gui.HTCottonInventoryScreen
 import io.github.hiiragi283.api.item.shape.HTShapeKey
 import io.github.hiiragi283.api.material.HTMaterialKey
 import io.github.hiiragi283.api.material.HTMaterialTooltipContext
@@ -17,7 +18,6 @@ import io.github.hiiragi283.api.module.HTPluginHolder
 import io.github.hiiragi283.api.property.HTPropertyHolder
 import io.github.hiiragi283.api.resource.HTModelJsonBuilder
 import io.github.hiiragi283.api.resource.HTRuntimeClientPack
-import io.github.hiiragi283.material.client.gui.screen.MaterialDictionaryScreen
 import io.github.hiiragi283.material.common.HTMaterials
 import io.github.hiiragi283.material.common.block.HTMaterialLibraryBlock
 import io.github.hiiragi283.material.impl.HTMaterialsAPIImpl
@@ -48,7 +48,7 @@ import net.minecraft.text.Text
 @Environment(EnvType.CLIENT)
 object HTMaterialsClient : ClientModInitializer {
     override fun onInitializeClient() {
-        ScreenRegistry.register(HTMaterials.screenHandlerType, ::MaterialDictionaryScreen)
+        ScreenRegistry.register(HTMaterials.screenHandlerType, ::HTCottonInventoryScreen)
 
         registerResource()
         registerMaterialResources()

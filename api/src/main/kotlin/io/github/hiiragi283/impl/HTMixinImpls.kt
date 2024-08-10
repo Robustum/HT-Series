@@ -6,18 +6,11 @@ import com.google.gson.JsonObject
 import io.github.hiiragi283.api.event.HTTagEvents
 import io.github.hiiragi283.api.extension.arrange
 import io.github.hiiragi283.api.extension.isInAny
-import io.github.hiiragi283.api.extension.runCatchAndLog
 import io.github.hiiragi283.api.module.HTLogger
-import io.github.hiiragi283.api.resource.HTRuntimeDataRegistry
 import io.github.hiiragi283.api.tag.HTItemTags
 import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags
 import net.minecraft.enchantment.EnchantmentTarget
 import net.minecraft.item.Item
-import net.minecraft.loot.*
-import net.minecraft.loot.condition.LootCondition
-import net.minecraft.loot.condition.LootConditionManager
-import net.minecraft.loot.context.LootContextType
-import net.minecraft.loot.context.LootContextTypes
 import net.minecraft.recipe.Recipe
 import net.minecraft.recipe.RecipeType
 import net.minecraft.resource.Resource
@@ -58,7 +51,7 @@ internal object HTMixinImpls {
 
     //    Loot Table    //
 
-    private val LOOT_GSON: Gson = LootGsons.getTableGsonBuilder().create()
+    /*private val LOOT_GSON: Gson = LootGsons.getTableGsonBuilder().create()
 
     @JvmStatic
     fun loadLootTables(map: MutableMap<Identifier, JsonElement>, conditionManager: LootConditionManager): Map<Identifier, LootTable> =
@@ -84,7 +77,7 @@ internal object HTMixinImpls {
             reporter.messages.forEach { key, value ->
                 HTLogger.log { it.warn("Found validation problem in $key: $value") }
             }
-        }
+        }*/
 
     //    Recipe    //
 

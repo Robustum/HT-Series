@@ -1,7 +1,8 @@
 package io.github.hiiragi283.impl
 
 import io.github.hiiragi283.api.block.entity.HTStorageProvider
-import io.github.hiiragi283.api.extension.registerClientReceiver
+import io.github.hiiragi283.api.effect.HTStatusEffect
+import io.github.hiiragi283.api.event.HTPlayerEvents
 import io.github.hiiragi283.api.extension.registerServerReceiver
 import io.github.hiiragi283.api.module.HTLogger
 import io.github.hiiragi283.api.module.HTModuleType
@@ -10,11 +11,7 @@ import io.github.hiiragi283.api.recipe.HTIngredient
 import io.github.hiiragi283.api.recipe.HTResult
 import io.github.hiiragi283.api.resource.HTRuntimeClientPack
 import io.github.hiiragi283.api.resource.MutableResourcePackManager
-import io.github.hiiragi283.api.screen.HTPropertySync
-import io.github.hiiragi283.api.screen.HTScreenHandler
 import io.github.hiiragi283.api.screen.widget.HTFluidWidget
-import io.github.hiiragi283.api.storage.HTSingleVariantStorage
-import io.github.hiiragi283.api.storage.HTSlottedStorage
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback
@@ -22,6 +19,7 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.client.MinecraftClient
 import net.minecraft.client.item.TooltipContext
+import net.minecraft.entity.effect.StatusEffectType
 import net.minecraft.item.ItemStack
 import net.minecraft.tag.ItemTags
 import net.minecraft.text.LiteralText
@@ -30,10 +28,12 @@ import net.minecraft.util.Formatting
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.registry.Registry
-import net.minecraft.world.World
 
 @Suppress("UnstableApiUsage")
-object HTAPI : ModInitializer, ClientModInitializer {
+internal object HTAPI : ModInitializer, ClientModInitializer {
+
+    private lateinit var creativeFlight: HTStatusEffect
+    
     //    Common    //
 
     override fun onInitialize() {
@@ -42,6 +42,23 @@ object HTAPI : ModInitializer, ClientModInitializer {
         registerCodecSerializer("result/item", HTResult.ItemImpl.Serializer)
         registerCodecSerializer("result/enchantment", HTResult.EnchantImpl.Serializer)
 
+        creativeFlight = Registry.register(
+            Registry.STATUS_EFFECT,
+            HTModuleType.API.id("creative_flight"),
+            HTStatusEffect(StatusEffectType.BENEFICIAL, 0xff003f)
+        )
+
+        HTPlayerEvents.START_TICK.register { player ->
+            if (player.hasStatusEffect(creativeFlight)) {
+                player.abilities.allowFlying = true
+                player.setOnFireFor(5)
+                player.isOnGround = true
+            } else {
+                player.abilities.allowFlying = false
+                player.abilities.flying = false
+            }
+        }
+        
         registerServerPackets()
         HTLogger.log { it.info("HT API Initialized!") }
     }
@@ -57,18 +74,17 @@ object HTAPI : ModInitializer, ClientModInitializer {
     private fun registerServerPackets() {
         registerServerReceiver(HTFluidWidget.PACKET_CODEC) { server, _, _, context, _ ->
             val (worldId: Identifier, pos: BlockPos, variant: FluidVariant, amount: Long, index: Int) = context
-            val world: World = server.registryManager
+            server.registryManager
                 .get(Registry.WORLD_KEY)
                 .get(worldId)
-                ?: return@registerServerReceiver
-            val storage: HTSlottedStorage<FluidVariant> =
-                (world.getBlockEntity(pos) as? HTStorageProvider)
-                    ?.getFluidStorage(null)
-                    ?: return@registerServerReceiver
-            val slotStorage: HTSingleVariantStorage<FluidVariant> =
-                storage.getSlot(index) as? HTSingleVariantStorage<FluidVariant> ?: return@registerServerReceiver
-            slotStorage.variant = variant
-            slotStorage.amount = amount
+                ?.getBlockEntity(pos)
+                ?.let { it as? HTStorageProvider }
+                ?.getFluidStorage(null)
+                ?.getSlot(index)
+                ?.apply {
+                    this.variant = variant
+                    this.amount = amount
+                }
         }
     }
 
@@ -92,13 +108,13 @@ object HTAPI : ModInitializer, ClientModInitializer {
     }
 
     private fun registerClientPackets() {
-        registerClientReceiver(HTPropertySync.PACKET_CODEC) { client, _, sync, _ ->
+        /*registerClientReceiver(HTPropertySync.PACKET_CODEC) { client, _, sync, _ ->
             client.execute {
                 val handler: HTScreenHandler = client.player?.currentScreenHandler as? HTScreenHandler ?: return@execute
                 if (handler.syncId == sync.syncId) {
                     handler.propertyDelegate?.set(sync.index, sync.value)
                 }
             }
-        }
+        }*/
     }
 }

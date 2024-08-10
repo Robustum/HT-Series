@@ -25,7 +25,7 @@ class MaterialDictionaryScreenHandler(
     syncId: Int,
     player: PlayerEntity,
     private val context: ScreenHandlerContext = ScreenHandlerContext.create(player.world, player.blockPos),
-) : ScreenHandler(HTMaterials.screenHandlerType, syncId) {
+) : ScreenHandler(null, syncId) {
     constructor(syncId: Int, playerInventory: PlayerInventory) : this(syncId, playerInventory.player)
 
     private val playerInventory: PlayerInventory = player.inventory

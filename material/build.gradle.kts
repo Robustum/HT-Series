@@ -28,6 +28,11 @@ dependencies {
         exclude(module = "fabric-loader")
     }
 
+    modImplementation("io.github.cottonmc:LibGui:3.4.0+1.16.5") {
+        exclude(module = "fabric-api")
+        exclude(module = "fabric-loader")
+    }
+
     modCompileOnly("curse.maven:industrial-revolution-391708:3364481")
 
     implementation(project(path = ":api", configuration = "namedElements")) {

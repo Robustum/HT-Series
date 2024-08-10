@@ -7,5 +7,5 @@ enum class HTStorageSide(val directions: Collection<Direction>) {
     SIDE(setOf(Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST)),
     DOWN(setOf(Direction.DOWN)),
     ANY(Direction.entries),
-    NONE(setOf()),
+    NONE(emptySet()),
 }

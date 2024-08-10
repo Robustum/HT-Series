@@ -65,7 +65,7 @@ data class HTMaterialComposition(
     }
 
     /*private data object Empty : HTMaterialComposition() {
-        override val componentMap: Map<HTElement, Int> = mapOf()
+        override val componentMap: Map<HTElement, Int> = emptyMap()
         override val color: Color = HTColor.WHITE
         override val formula: String = ""
         override val molar: Double = 0.0
