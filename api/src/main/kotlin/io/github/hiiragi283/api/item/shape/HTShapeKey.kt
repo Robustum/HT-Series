@@ -8,7 +8,7 @@ import io.github.hiiragi283.api.module.HTLogger
 import java.util.concurrent.ConcurrentHashMap
 import java.util.function.Supplier
 
-class HTShapeKey private constructor(val name: String) : Supplier<HTShape>, HTMaterialTranslatable {
+class HTShapeKey private constructor(val name: String) : Comparable<HTShapeKey>, Supplier<HTShape>, HTMaterialTranslatable {
     companion object {
         private val INSTANCES: MutableMap<String, HTShapeKey> = ConcurrentHashMap()
 
@@ -18,6 +18,10 @@ class HTShapeKey private constructor(val name: String) : Supplier<HTShape>, HTMa
         @JvmField
         val CODEC: Codec<HTShapeKey> = Codec.STRING.xmap(Companion::of, HTShapeKey::name)
     }
+
+    //    Comparable    //
+
+    override fun compareTo(other: HTShapeKey): Int = this.name.compareTo(other.name)
 
     //    Supplier    //
 

@@ -15,7 +15,7 @@ public abstract class ShovelItemMixin {
 
     @Redirect(method = "useOnBlock", at = @At(value = "INVOKE", target = "Ljava/util/Map;get(Ljava/lang/Object;)Ljava/lang/Object;"))
     private <K, V> V ht_api$get(Map<K, V> instance, Object object) {
-        return (V) HTBlockReformingRegistry.getPath((Block) object);
+        return (V) HTBlockReformingRegistry.getFlattened((Block) object);
     }
-    
+
 }

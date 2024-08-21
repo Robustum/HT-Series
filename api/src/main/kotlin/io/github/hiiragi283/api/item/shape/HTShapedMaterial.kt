@@ -25,7 +25,7 @@ data class HTShapedMaterial(val materialKey: HTMaterialKey, val shapeKey: HTShap
 
     operator fun component3(): HTPropertyHolder = material
 
-    operator fun component4() = shape
+    operator fun component4(): HTShape = shape
 
     companion object {
         @JvmField

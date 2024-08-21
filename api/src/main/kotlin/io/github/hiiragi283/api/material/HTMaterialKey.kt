@@ -11,7 +11,7 @@ import net.minecraft.util.Identifier
 import java.util.concurrent.ConcurrentHashMap
 import java.util.function.Supplier
 
-class HTMaterialKey private constructor(val name: String) : Supplier<HTPropertyHolder> {
+class HTMaterialKey private constructor(val name: String) : Comparable<HTMaterialKey>, Supplier<HTPropertyHolder> {
     companion object {
         private val INSTANCES: MutableMap<String, HTMaterialKey> = ConcurrentHashMap()
 
@@ -21,6 +21,10 @@ class HTMaterialKey private constructor(val name: String) : Supplier<HTPropertyH
         @JvmField
         val CODEC: Codec<HTMaterialKey> = Codec.STRING.xmap(Companion::of, HTMaterialKey::name)
     }
+
+    //    Comparable    //
+
+    override fun compareTo(other: HTMaterialKey): Int = this.name.compareTo(other.name)
 
     //    Supplier    //
 

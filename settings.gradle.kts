@@ -23,5 +23,5 @@ include(
     "engineering",
     "material",
     // "storage",
-    // "tool"
+    "tool",
 )
